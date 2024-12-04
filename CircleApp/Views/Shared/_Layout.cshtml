@@ -5,27 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Circle</title>
     <link href="~/images/favicon.png" rel="stylesheet" />
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    @* <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" /> *@
     <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tailwind.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/CircleApp.styles.css" asp-append-version="true" />
+    @* <link rel="stylesheet" href="~/CircleApp.styles.css" asp-append-version="true" /> *@
 </head>
 <body>
     
     <div id="wrapper">
         @* TopBar *@
-        <header>
-            <div>
-            <div></div>
-            <div>
-                @* search *@
-                @* notification icon *@
-                @* profile icon *@
-            </div>
-
-            </div>
-
-        </header>
+       <partial name="Navigation/_TopBar"/>
+       <partial name="Navigation/_SideBar"/>
         @RenderBody()
     </div>
         
@@ -39,6 +30,9 @@
     <script src="~/js/simplebar.js"></script>
     <script src="~/js/uikit.min.js"></script>
 
+    @* Ion Icon *@
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
 
     @await RenderSectionAsync("Scripts", required: false)
