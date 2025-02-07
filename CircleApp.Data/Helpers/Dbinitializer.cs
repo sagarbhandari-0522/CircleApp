@@ -19,7 +19,9 @@ namespace CircleApp.Data.Helpers
             {
                 var User = new User()
                 {
-                    FullName = "Sagar Bhandari"
+                    FullName = "Sagar Bhandari",
+                    ProfilePictureUrl= "https://images.unsplash.com/photo-1542613172-4ac1d7351721?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+
 
                 };
                 await context.Users.AddAsync(User);
@@ -27,7 +29,7 @@ namespace CircleApp.Data.Helpers
                 var newPostWithoutImage = new Post()
                 {
                     Content = "This is my first Post",
-                    ImageUrl = "imageurl",
+                    ImageUrl = "https://plus.unsplash.com/premium_photo-1667126445804-79202e10a28a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
                     NrOfReports = 0,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
@@ -37,7 +39,7 @@ namespace CircleApp.Data.Helpers
                 var newPostWithImage = new Post()
                 {
                     Content = "This is my second Post",
-                    ImageUrl = "imageurl",
+                    ImageUrl = "https://images.unsplash.com/photo-1556609894-0ae309cb8354?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
                     NrOfReports = 0,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,

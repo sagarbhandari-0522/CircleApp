@@ -1,32 +1,90 @@
+using CircleApp.Data;
+using Humanizer;
 using CircleApp.Data.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
+using CircleApp.ViewModels;
+using Microsoft.Extensions.Hosting;
 
 namespace CircleApp.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _logger = logger;
+            _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public IActionResult Index()
         {
-            return View();
+
+            var allPosts = _context.Posts
+                .Include(n => n.User)
+                .OrderByDescending(n => n.UpdatedAt)
+                .ToList();
+            return View(allPosts);
         }
 
         public IActionResult Privacy()
         {
             return View();
         }
+        [HttpPost]
+        public IActionResult Create(PostCreateViewModel model)
+        {
 
-        //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        //public IActionResult Error()
-        //{
-        //    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        //}
+            string uniqueFileName = null;
+            if (model.Image != null)
+            {
+                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "uploads");
+                Directory.CreateDirectory(uploadsFolder);
+                uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Image.FileName;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                model.Image.CopyTo(new FileStream(filePath, FileMode.Create));
+            }
+            Post post = new Post
+            {
+                Content = model.Content,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                ImageUrl = uniqueFileName,
+                User = _context.Users.FirstOrDefault(),
+                NrOfReports = 0
+            };
+
+
+
+            if (ModelState.IsValid)
+            {
+                _context.Posts.Add(post);
+                _context.SaveChanges();
+
+            }
+
+            else
+            {
+                foreach (var state in ModelState.Values)
+                {
+                    foreach (var error in state.Errors)
+                    {
+                        Console.WriteLine($"Validation Error: {error.ErrorMessage}");
+                    }
+                }
+            }
+
+
+
+            return RedirectToAction("Index");
+
+        }
     }
 }
