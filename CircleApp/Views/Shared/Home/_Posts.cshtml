@@ -1,4 +1,6 @@
-﻿<div class="bg-white rounded-xl shadow-sm text-sm font-medium border1">
+﻿@using Humanizer
+@model Post
+<div class="bg-white rounded-xl shadow-sm text-sm font-medium border1">
 
     @* Post heading *@
     <div class="flex gap-3 sm:p-4 p-2.5 text-sm font-medium">
@@ -8,7 +10,7 @@
         <div class="flex-1">
             <a>
                 <h4 class="text-black">@Model.User.FullName</h4>
-                <div class="text-xs text-gray-500/80">@Model.CreatedAt</div>
+                <div class="text-xs text-gray-500/80" title="@(Model.CreatedAt.ToLocalTime().ToString("MM/dd/yyyy HH:mm"))">@((DateTime.UtcNow - Model.CreatedAt).Humanize()) ago</div>
             </a>
         </div>
 
@@ -52,7 +54,7 @@
 
         <a>
             <div class="relative w-full lg:h-96 h-full sm:px-4">
-                <img src=@Model.ImageUrl class="sm:rounded-lg w-full h-full object-cover" />
+                <img src="~/images/uploads/@Model.ImageUrl" class="sm:rounded-lg w-full h-full object-cover" />
             </div>
         </a>
     }
