@@ -14,5 +14,6 @@ namespace CircleApp.Data.Models
         public string FullName { get; set; }
         public string? ProfilePictureUrl { get; set; }
         public ICollection<Post> Posts { get; set; }
+        public ICollection<Like> Likes { get; set; }
     }
 }
