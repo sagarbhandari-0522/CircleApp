@@ -29,6 +29,7 @@ namespace CircleApp.Controllers
 
             var allPosts = _context.Posts
                 .Include(n => n.User)
+                .Include(n=>n.Likes)
                 .OrderByDescending(n => n.UpdatedAt)
                 .ToList();
             return View(allPosts);
@@ -43,6 +44,7 @@ namespace CircleApp.Controllers
         {
 
             string uniqueFileName = null;
+            int currentUserId = 1;
             if (model.Image != null)
             {
                 string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "uploads");
@@ -57,7 +59,7 @@ namespace CircleApp.Controllers
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 ImageUrl = uniqueFileName,
-                User = _context.Users.FirstOrDefault(),
+                User = _context.Users.FirstOrDefault(u=>u.Id==currentUserId),
                 NrOfReports = 0
             };
 
@@ -85,6 +87,33 @@ namespace CircleApp.Controllers
 
             return RedirectToAction("Index");
 
+
         }
+        [HttpPost]
+        public IActionResult TogglePostLike(TogglePostLikeViewModel model)
+        {
+            var currentUserId = 1;
+            var likeToRemove = _context.Likes.FirstOrDefault(l => l.UserId == currentUserId && l.PostId == model.postId);
+            if(likeToRemove!=null)
+            {
+                _context.Likes.Remove(likeToRemove);
+                _context.SaveChanges();
+            }
+            else
+            {
+                var like = new Like()
+                {
+                    Post = _context.Posts.FirstOrDefault(p => p.Id == model.postId),
+                    User = _context.Users.FirstOrDefault(u => u.Id == currentUserId),
+                    CreatedAt = DateTime.UtcNow
+
+                };
+                _context.Likes.Add(like);
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("Index");
+        }
+
     }
 }
