@@ -11,7 +11,7 @@ namespace CircleApp.Data.Models
     {
         [Required]
         public int Id { get; set; }
-        public DateTime CreateAt { get; set; }
+        public DateTime CreatedAt { get; set; }
         public int PostId { get; set; }
         public  required Post Post { get; set; }
         public int UserId { get; set; }
