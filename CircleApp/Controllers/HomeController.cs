@@ -114,6 +114,24 @@ namespace CircleApp.Controllers
 
             return RedirectToAction("Index");
         }
+        [HttpPost]
+        public IActionResult PostComment(PostCommentVM model)
+        {
+            var currentUserId = 1;
+            var comment = new Comment
+            {
+                UserId = currentUserId,
+                PostId = model.PostId,
+                Content = model.Content,
+                CreatedAt=DateTime.UtcNow,
+                UpdatedAt=DateTime.UtcNow
+
+            };
+            _context.Comments.Add(comment);
+            _context.SaveChanges();
+            return RedirectToAction("Index");
+
+        }
 
     }
 }
