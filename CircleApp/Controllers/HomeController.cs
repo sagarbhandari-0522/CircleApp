@@ -30,6 +30,7 @@ namespace CircleApp.Controllers
             var allPosts = _context.Posts
                 .Include(n => n.User)
                 .Include(n=>n.Likes)
+                .Include(n=>n.Comments).ThenInclude(n=>n.User)
                 .OrderByDescending(n => n.UpdatedAt)
                 .ToList();
             return View(allPosts);
@@ -110,6 +111,39 @@ namespace CircleApp.Controllers
                 };
                 _context.Likes.Add(like);
                 _context.SaveChanges();
+            }
+
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public IActionResult PostComment(PostCommentVM model)
+        {
+            var currentUserId = 1;
+            var comment = new Comment
+            {
+                UserId = currentUserId,
+                PostId = model.PostId,
+                Content = model.Content,
+                CreatedAt=DateTime.UtcNow,
+                UpdatedAt=DateTime.UtcNow,
+                User = _context.Users.FirstOrDefault(u => u.Id == currentUserId),
+                Post = _context.Posts.FirstOrDefault(p => p.Id == model.PostId)
+
+            };
+            _context.Comments.Add(comment);
+            _context.SaveChanges();
+            return RedirectToAction("Index");
+
+        }
+        [HttpPost]
+        public IActionResult RemovePostComment(int commentId)
+        {
+            var comment = _context.Comments.FirstOrDefault(c => c.Id == commentId);
+            if (comment != null)
+            {
+                _context.Comments.Remove(comment);
+                _context.SaveChanges();
+
             }
 
             return RedirectToAction("Index");

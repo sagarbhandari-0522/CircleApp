@@ -1,27 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
 
 namespace CircleApp.Data.Models
 {
-    public class Post
+    public class Comment
     {
         [Key]
         public int Id { get; set; }
         [Required]
         public string? Content { get; set; }
-        public string? ImageUrl { get; set; }
-        public int NrOfReports { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public int UserId { get; set; }
-        
-        public  User User { get; set; }
-        public ICollection<Like> Likes { get; set; } = new List<Like>();
-        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public int? PostId { get; set; }
+        public User? User { get; set; }
+        public Post? Post { get; set; }
 
 
     }
