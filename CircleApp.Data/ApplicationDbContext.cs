@@ -8,17 +8,18 @@ using CircleApp.Data.Models;
 
 namespace CircleApp.Data
 {
-    public class ApplicationDbContext :DbContext
+    public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) :base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
         }
         public DbSet<Post> Posts { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Like> Likes { get; set; }
-        public DbSet <Comment> Comments { get; set; }
-        
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Favorite> Favorites { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
@@ -51,9 +52,21 @@ namespace CircleApp.Data
                 .WithMany(p => p.Comments)
                 .HasForeignKey(c => c.PostId)
                 .OnDelete(DeleteBehavior.NoAction);
-        
+
+            modelBuilder.Entity<Favorite>()
+                .HasOne(f => f.User)
+                .WithMany(u => u.Favorites)
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Favorite>()
+                .HasOne(f => f.Post)
+                .WithMany(p => p.Favorites)
+                .HasForeignKey(c => c.PostId)
+                .OnDelete(DeleteBehavior.NoAction);
+
         }
 
     }
-     
+
 }
