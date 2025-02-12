@@ -1,5 +1,9 @@
 ﻿@using Humanizer
 @model Post
+@{
+    var isLiked = Model.Likes.Any(l => l.UserId == 1);
+    var isFavorite = Model.Favorites.Any(l => l.UserId == 1);
+}
 <div class="bg-white rounded-xl shadow-sm text-sm font-medium border1">
 
     @* Post heading *@
@@ -65,8 +69,8 @@
         <div class="flex items-center gap-2.5">
             <form asp-controller="Home" asp-action="TogglePostLike">
                 <input type="hidden" name="postId" value="@Model.Id" />
-                <button type="submit" class="button-icon @(Model.Likes.Any(l=>l.UserId==1)?"text-red-500 bg-red-100":"")">
-                    <ion-icon class="text-lg " name="@(Model.Likes.Any(l=>l.UserId==1)?"heart":"heart-outline")"></ion-icon>
+                <button type="submit" class="button-icon @(isLiked?"text-red-500 bg-red-100":"")">
+                    <ion-icon class="text-lg " name="@(isLiked?"heart":"heart-outline")"></ion-icon>
                 </button>
             </form>
             <a href="#">@Model.Likes.Count</a>
@@ -82,10 +86,16 @@
 
         <div class="ml-auto"></div>
 
-        <div>
-            <a class="button-icon ml-auto">
-                <ion-icon class="text-lg" name="bookmark-outline"></ion-icon>
-            </a>
+        <div class="flex items-center gap-2.5">
+            <form asp-controller="Home" asp-action="TogglePostFavorite">
+                <input type="hidden" value="@Model.Id" name="PostId" />
+                <a class="button-icon ml-auto">
+                    <button type="submit" class="button-icon ml-auto @(isFavorite?"text-orange-500 bg-orange-100":"")">
+                        <ion-icon class="text-lg" name="@(isFavorite?"bookmark":"bookmark-outline")"></ion-icon>
+                    </button>
+                </a>
+            </form>
+            <a href="#">@Model.Favorites.Count</a>
         </div>
     </div>
 
@@ -95,7 +105,7 @@
 
             <div class="p-2.5 border-t border-gray-100 font-normal space-y-3 relative">
 
-                @foreach (var comment in Model.Comments.OrderByDescending(c =>c.UpdatedAt).Take(3))
+                @foreach (var comment in Model.Comments.OrderByDescending(c => c.UpdatedAt).Take(3))
                 {
                     <div class="flex items-start gap-3 relative">
                         <a>
@@ -106,7 +116,7 @@
                                 <a class="text-black font-medium inline-block flex-grow">
                                     @comment.User.FullName
                                 </a>
-                                <small>@((DateTime.UtcNow-comment.UpdatedAt).Humanize())</small>
+                                <small>@((DateTime.UtcNow - comment.UpdatedAt).Humanize())</small>
                             </div>
                             <div class="flex items-center justify-between">
                                 <p class="mt-0.5">
@@ -144,5 +154,6 @@
 
                 </div>
             </form>
+
         </div>
     </div>

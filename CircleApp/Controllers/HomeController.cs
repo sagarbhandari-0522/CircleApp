@@ -30,6 +30,7 @@ namespace CircleApp.Controllers
             var allPosts = _context.Posts
                 .Include(n => n.User)
                 .Include(n=>n.Likes)
+                .Include(n=>n.Favorites)
                 .Include(n=>n.Comments).ThenInclude(n=>n.User)
                 .OrderByDescending(n => n.UpdatedAt)
                 .ToList();
@@ -146,6 +147,32 @@ namespace CircleApp.Controllers
 
             }
 
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult TogglePostFavorite(TogglePostFavoriteVM model)
+        {
+            var currentUserId = 1;
+            var favorite = _context.Favorites.FirstOrDefault(f => f.UserId == currentUserId && f.PostId == model.PostId);
+            if(favorite!=null)
+            {
+                _context.Favorites.Remove(favorite);
+                _context.SaveChanges();
+            }
+            else
+            {
+                var newFavorite = new Favorite
+                {
+                    UserId = currentUserId,
+                    PostId = model.PostId,
+                    CreatedAt=DateTime.UtcNow
+                };
+                _context.Favorites.Add(newFavorite);
+                _context.SaveChanges();
+
+
+            }
             return RedirectToAction("Index");
         }
 
