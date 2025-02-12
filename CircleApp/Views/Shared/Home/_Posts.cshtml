@@ -83,9 +83,11 @@
         <div class="ml-auto"></div>
 
         <div>
-            <a class="button-icon ml-auto">
-                <ion-icon class="text-lg" name="bookmark-outline"></ion-icon>
-            </a>
+            <form asp-controller="Home" asp-action="TogglePostFavorite">
+                <a class="button-icon ml-auto">
+                    <button type="submit"> <ion-icon class="text-lg" name="bookmark-outline"></ion-icon></button>
+                </a>
+            </form>
         </div>
     </div>
 
@@ -95,7 +97,7 @@
 
             <div class="p-2.5 border-t border-gray-100 font-normal space-y-3 relative">
 
-                @foreach (var comment in Model.Comments.OrderByDescending(c =>c.UpdatedAt).Take(3))
+                @foreach (var comment in Model.Comments.OrderByDescending(c => c.UpdatedAt).Take(3))
                 {
                     <div class="flex items-start gap-3 relative">
                         <a>
@@ -106,7 +108,7 @@
                                 <a class="text-black font-medium inline-block flex-grow">
                                     @comment.User.FullName
                                 </a>
-                                <small>@((DateTime.UtcNow-comment.UpdatedAt).Humanize())</small>
+                                <small>@((DateTime.UtcNow - comment.UpdatedAt).Humanize())</small>
                             </div>
                             <div class="flex items-center justify-between">
                                 <p class="mt-0.5">
@@ -144,5 +146,6 @@
 
                 </div>
             </form>
+
         </div>
     </div>

@@ -149,5 +149,33 @@ namespace CircleApp.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpPost]
+        public IActionResult TogglePostFavorite(TogglePostFavoriteVM model)
+        {
+            var currentUserId = 1;
+            var favorite = _context.Favorites.FirstOrDefault(f => f.UserId == currentUserId && f.PostId == model.PostId);
+            if(favorite!=null)
+            {
+                _context.Favorites.Remove(favorite);
+                _context.SaveChanges();
+            }
+            else
+            {
+                var newFavorite = new Favorite
+                {
+                    User = _context.Users.FirstOrDefault(u => u.Id == currentUserId),
+                    Post=_context.Posts.FirstOrDefault(p=>p.Id==model.PostId),
+                    UserId=currentUserId,
+                    PostId=model.PostId,
+
+                };
+                _context.Favorites.Add(newFavorite);
+                _context.SaveChanges();
+
+
+            }
+            return RedirectToAction("Index");
+        }
+
     }
 }
