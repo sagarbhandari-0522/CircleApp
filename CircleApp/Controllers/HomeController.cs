@@ -30,6 +30,7 @@ namespace CircleApp.Controllers
             var allPosts = _context.Posts
                 .Include(n => n.User)
                 .Include(n=>n.Likes)
+                .Include(n=>n.Favorites)
                 .Include(n=>n.Comments).ThenInclude(n=>n.User)
                 .OrderByDescending(n => n.UpdatedAt)
                 .ToList();
@@ -163,11 +164,9 @@ namespace CircleApp.Controllers
             {
                 var newFavorite = new Favorite
                 {
-                    User = _context.Users.FirstOrDefault(u => u.Id == currentUserId),
-                    Post=_context.Posts.FirstOrDefault(p=>p.Id==model.PostId),
-                    UserId=currentUserId,
-                    PostId=model.PostId,
-
+                    UserId = currentUserId,
+                    PostId = model.PostId,
+                    CreatedAt=DateTime.UtcNow
                 };
                 _context.Favorites.Add(newFavorite);
                 _context.SaveChanges();
