@@ -26,8 +26,9 @@ namespace CircleApp.Controllers
 
         public IActionResult Index()
         {
-
+            var currentUserId = 1;
             var allPosts = _context.Posts
+                .Where(n=>!n.IsPrivate || n.UserId==currentUserId)
                 .Include(n => n.User)
                 .Include(n=>n.Likes)
                 .Include(n=>n.Favorites)
@@ -114,6 +115,19 @@ namespace CircleApp.Controllers
                 _context.SaveChanges();
             }
 
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public IActionResult TogglePostVisibility(TogglePostVisibilityVM model)
+        {
+            var currentUserId = 1;
+            var post = _context.Posts.FirstOrDefault(p => p.Id == model.PostId && p.UserId == currentUserId);
+            if(post!=null)
+            {
+                post.IsPrivate = !post.IsPrivate;
+                _context.Posts.Update(post);
+                _context.SaveChanges();
+            }
             return RedirectToAction("Index");
         }
         [HttpPost]
