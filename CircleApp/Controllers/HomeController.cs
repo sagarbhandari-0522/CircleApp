@@ -23,16 +23,16 @@ namespace CircleApp.Controllers
             _context = context;
             _webHostEnvironment = webHostEnvironment;
         }
-
         public IActionResult Index()
         {
             var currentUserId = 1;
             var allPosts = _context.Posts
-                .Where(n=>!n.IsPrivate || n.UserId==currentUserId)
+                .Where(n =>( !n.IsPrivate || n.UserId == currentUserId)&& (n.Reports.Count<=5)&&!n.Reports.Any(n=>n.UserId==currentUserId))
                 .Include(n => n.User)
-                .Include(n=>n.Likes)
-                .Include(n=>n.Favorites)
-                .Include(n=>n.Comments).ThenInclude(n=>n.User)
+                .Include(n => n.Likes)
+                .Include(n => n.Favorites)
+                .Include(n=>n.Reports)
+                .Include(n => n.Comments).ThenInclude(n => n.User)
                 .OrderByDescending(n => n.UpdatedAt)
                 .ToList();
             return View(allPosts);
@@ -62,7 +62,7 @@ namespace CircleApp.Controllers
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 ImageUrl = uniqueFileName,
-                User = _context.Users.FirstOrDefault(u=>u.Id==currentUserId),
+                User = _context.Users.FirstOrDefault(u => u.Id == currentUserId),
                 NrOfReports = 0
             };
 
@@ -97,7 +97,7 @@ namespace CircleApp.Controllers
         {
             var currentUserId = 1;
             var likeToRemove = _context.Likes.FirstOrDefault(l => l.UserId == currentUserId && l.PostId == model.postId);
-            if(likeToRemove!=null)
+            if (likeToRemove != null)
             {
                 _context.Likes.Remove(likeToRemove);
                 _context.SaveChanges();
@@ -122,7 +122,7 @@ namespace CircleApp.Controllers
         {
             var currentUserId = 1;
             var post = _context.Posts.FirstOrDefault(p => p.Id == model.PostId && p.UserId == currentUserId);
-            if(post!=null)
+            if (post != null)
             {
                 post.IsPrivate = !post.IsPrivate;
                 _context.Posts.Update(post);
@@ -139,8 +139,8 @@ namespace CircleApp.Controllers
                 UserId = currentUserId,
                 PostId = model.PostId,
                 Content = model.Content,
-                CreatedAt=DateTime.UtcNow,
-                UpdatedAt=DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
                 User = _context.Users.FirstOrDefault(u => u.Id == currentUserId),
                 Post = _context.Posts.FirstOrDefault(p => p.Id == model.PostId)
 
@@ -169,7 +169,7 @@ namespace CircleApp.Controllers
         {
             var currentUserId = 1;
             var favorite = _context.Favorites.FirstOrDefault(f => f.UserId == currentUserId && f.PostId == model.PostId);
-            if(favorite!=null)
+            if (favorite != null)
             {
                 _context.Favorites.Remove(favorite);
                 _context.SaveChanges();
@@ -180,13 +180,28 @@ namespace CircleApp.Controllers
                 {
                     UserId = currentUserId,
                     PostId = model.PostId,
-                    CreatedAt=DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow
                 };
                 _context.Favorites.Add(newFavorite);
                 _context.SaveChanges();
 
 
             }
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult AddPostReport(PostReportVM model)
+        {
+            var currentUserId = 1;
+
+            var report = new Report()
+            {
+                UserId = currentUserId,
+                PostId = model.PostId,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.Reports.Add(report);
+            _context.SaveChanges();
             return RedirectToAction("Index");
         }
 
