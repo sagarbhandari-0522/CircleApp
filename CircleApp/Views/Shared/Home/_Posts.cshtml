@@ -5,6 +5,7 @@
     var isLiked = Model.Likes.Any(l => l.UserId == 1);
     var isFavorite = Model.Favorites.Any(l => l.UserId == 1);
     var isPostowner = false;
+    bool isReported = Model.Reports.Any(l => l.UserId == 1);
     if (Model.UserId == currentUserId)
     {
         isPostowner = true;
@@ -36,21 +37,26 @@
                             <ion-icon name="@(Model.IsPrivate?"lock-open-outline":"lock-closed-outline")"></ion-icon> Set as @(Model.IsPrivate ? "Public" : "Private")
                         </button>
                     </form>
+
+
+                    <hr>
+                    <form asp-controller="Home" asp-action="Delete">
+                        <input type="hidden" name="postId" />
+                        <button type="submit" class="text-red-400 hover:!bg-red-50 icon-link">
+                            <ion-icon name="trash-bin-outline"></ion-icon>  Delete Post
+                        </button>
+                    </form>
+                }
+                @if (!isReported)
+                {
+                    <form asp-controller="Home" asp-action="AddPostReport">
+                        <input type="hidden" name="PostId" value="@Model.Id" />
+                        <button type="submit" class="hover:!bg-red-50 icon-link">
+                            <ion-icon class="text-xl shrink-0" name="flag-outline"></ion-icon>  Report
+                        </button>
+                    </form>
                 }
 
-                <hr>
-                <form asp-controller="Home" asp-action="Delete">
-                    <input type="hidden" name="postId" />
-                    <button type="submit" class="text-red-400 hover:!bg-red-50 icon-link">
-                        <ion-icon name="trash-bin-outline"></ion-icon>  Delete Post
-                    </button>
-                </form>
-                <form asp-controller="Home" asp-action="Report">
-                    <input type="hidden" name="postId" />
-                    <button type="submit" class="hover:!bg-red-50 icon-link">
-                        <ion-icon class="text-xl shrink-0" name="flag-outline"></ion-icon>  Report
-                    </button>
-                </form>
             </div>
         </div>
     </div>
