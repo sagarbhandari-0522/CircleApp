@@ -28,7 +28,7 @@
 
         <div class="-mr-1">
             <button type="button" class="button-icon w-8 h-8"> <ion-icon class="text-xl" name="ellipsis-horizontal"></ion-icon> </button>
-            <div class="w-[245px]" uk-dropdown="pos: bottom-right; animation: uk-animation-scale-up uk-transform-origin-top-right; animate-out: true; mode: click">
+            <div class="w-[245px] post-options-dropdown" uk-dropdown="pos: bottom-right; animation: uk-animation-scale-up uk-transform-origin-top-right; animate-out: true; mode: click">
                 @if (isPostowner)
                 {
                     <form asp-controller="Home" asp-action="TogglePostVisibility">
@@ -37,17 +37,14 @@
                             <ion-icon name="@(Model.IsPrivate?"lock-open-outline":"lock-closed-outline")"></ion-icon> Set as @(Model.IsPrivate ? "Public" : "Private")
                         </button>
                     </form>
-
-
                     <hr>
-                    <form asp-controller="Home" asp-action="Delete">
-                        <input type="hidden" name="postId" />
-                        <button type="submit" class="text-red-400 hover:!bg-red-50 icon-link">
-                            <ion-icon name="trash-bin-outline"></ion-icon>  Delete Post
+                    <div>
+                        <button type="submit" onclick="openPostDeleteConfirmation(@Model.Id)" class="text-red-400 hover:!bg-red-50 icon-link p-2" uk-toggle="target: #postDeleteDialog">
+                            <ion-icon name="trash-bin-outline" class="mr-2"></ion-icon>Delete Post
                         </button>
-                    </form>
+                    </div>
                 }
-                @if (!isReported)
+                else
                 {
                     <form asp-controller="Home" asp-action="AddPostReport">
                         <input type="hidden" name="PostId" value="@Model.Id" />
@@ -173,3 +170,4 @@
 
         </div>
     </div>
+</div>

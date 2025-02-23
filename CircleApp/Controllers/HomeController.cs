@@ -27,7 +27,7 @@ namespace CircleApp.Controllers
         {
             var currentUserId = 1;
             var allPosts = _context.Posts
-                .Where(n =>( !n.IsPrivate || n.UserId == currentUserId)&& (n.Reports.Count<=5)&&!n.Reports.Any(n=>n.UserId==currentUserId))
+                .Where(n =>( !n.IsPrivate || n.UserId == currentUserId)&& (n.Reports.Count<=5)&&!n.Reports.Any(n=>n.UserId==currentUserId) && !n.IsDeleted)
                 .Include(n => n.User)
                 .Include(n => n.Likes)
                 .Include(n => n.Favorites)
@@ -204,6 +204,17 @@ namespace CircleApp.Controllers
             _context.SaveChanges();
             return RedirectToAction("Index");
         }
-
+        [HttpPost]
+        public IActionResult RemovePost(PostDeleteVM model)
+        {
+            var post = _context.Posts.FirstOrDefault(p => p.Id == model.PostId);
+            if(post!=null)
+            {
+                post.IsDeleted = true;
+                _context.Posts.Update(post);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("Index");
+        }
     }
 }
