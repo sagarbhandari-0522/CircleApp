@@ -28,11 +28,11 @@ namespace CircleApp.Controllers
         {
             var currentUserId = 1;
             var allPosts = _context.Posts
-                .Where(n =>( !n.IsPrivate || n.UserId == currentUserId)&& (n.Reports.Count<=5)&&!n.Reports.Any(n=>n.UserId==currentUserId) && !n.IsDeleted)
+                .Where(n => (!n.IsPrivate || n.UserId == currentUserId) && (n.Reports.Count <= 5) && !n.Reports.Any(n => n.UserId == currentUserId) && !n.IsDeleted)
                 .Include(n => n.User)
                 .Include(n => n.Likes)
                 .Include(n => n.Favorites)
-                .Include(n=>n.Reports)
+                .Include(n => n.Reports)
                 .Include(n => n.Comments).ThenInclude(n => n.User)
                 .OrderByDescending(n => n.UpdatedAt)
                 .ToList();
@@ -209,11 +209,24 @@ namespace CircleApp.Controllers
         public IActionResult RemovePost(PostDeleteVM model)
         {
             var post = _context.Posts.FirstOrDefault(p => p.Id == model.PostId);
-            if(post!=null)
+            if (post != null)
             {
                 post.IsDeleted = true;
                 _context.Posts.Update(post);
                 _context.SaveChanges();
+                var hashTags = HashtagHelper.GetHashTag(_context, post.Content);
+                hashTags.ForEach(tag =>
+                {
+                    var hashtag = _context.Hashtags.FirstOrDefault(n => n.Name == tag);
+                    if (hashtag != null)
+                    {
+                        hashtag.Count -= 1;
+
+                        hashtag.UpdatedAt = DateTime.UtcNow;
+                        _context.Hashtags.Update(hashtag);
+                        _context.SaveChanges();
+                    }
+                });
             }
             return RedirectToAction("Index");
         }

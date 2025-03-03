@@ -42,8 +42,14 @@ namespace CircleApp.Data.Helpers
         }
         public static List<string> GetHashTag(ApplicationDbContext context, string postContent)
         {
-            var lista = new List<string>() { "Sagar", "samundra" };
-            return lista;
+            _context = context;
+            var saveTagsName = _context.Hashtags.Select(n => n.Name).ToList();
+            var matches = Regex.Matches(postContent, @"#\w+");
+
+
+            var hashtags = matches.Select(m => m.Value.Replace(@"[^a-z0-9#]", "").ToLower()).Distinct().ToList();
+
+            return hashtags;
         }
     }
 }
