@@ -13,7 +13,9 @@ namespace CircleApp.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            return View();
+            var lastWeek = DateTime.UtcNow.AddDays(-7);
+            var tags = _context.Hashtags.Where(t => t.CreatedAt >= lastWeek).OrderByDescending(t=>t.Count).Take(3).ToList();
+            return View(tags);
         }
     }
 }
