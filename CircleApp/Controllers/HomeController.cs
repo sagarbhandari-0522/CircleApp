@@ -1,6 +1,7 @@
 using CircleApp.Data;
 using Humanizer;
 using CircleApp.Data.Models;
+using CircleApp.Data.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
@@ -72,7 +73,7 @@ namespace CircleApp.Controllers
             {
                 _context.Posts.Add(post);
                 _context.SaveChanges();
-
+                HashtagHelper.Hashtag(_context, post.Content);
             }
 
             else
