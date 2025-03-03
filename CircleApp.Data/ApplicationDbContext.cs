@@ -20,6 +20,7 @@ namespace CircleApp.Data
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<Report> Reports { get; set; }
+        public DbSet<Story> Stories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -78,6 +79,11 @@ namespace CircleApp.Data
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Story>()
+                .HasOne(s => s.User)
+                .WithMany(u => u.Stories)
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
     }
