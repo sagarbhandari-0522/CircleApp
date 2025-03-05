@@ -12,9 +12,10 @@ namespace CircleApp.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public PostsService(ApplicationDbContext context)
+        public PostsService(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
-            _context = context; 
+            _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
         public List<Post> GetAllPosts(int loggedInUserId)
         {

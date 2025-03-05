@@ -1,4 +1,5 @@
 ﻿using CircleApp.Data;
+using CircleApp.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -10,16 +11,16 @@ namespace CircleApp.Components
     public class StoriesViewComponent:ViewComponent
     {
         private readonly ApplicationDbContext _context;
-        public StoriesViewComponent(ApplicationDbContext context)
+        private readonly IStoryService _storyService;
+        public StoriesViewComponent(ApplicationDbContext context, IStoryService storyService)
         {
             _context = context;
+            _storyService = storyService;
+
         }
        public async Task< IViewComponentResult> InvokeAsync()
         {
-            var stories = _context.Stories.AsNoTracking()
-               .Include(s=>s.User)
-                .Where(s=>s.CreatedAt>=DateTime.UtcNow.AddHours(-24))
-                .ToList();
+            var stories=_storyService.GetAllStories();
             return View(stories);
         }
     }
