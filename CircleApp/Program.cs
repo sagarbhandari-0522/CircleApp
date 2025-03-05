@@ -1,9 +1,12 @@
 using CircleApp.Data;
 using CircleApp.Data.Helpers;
+using CircleApp.Services;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IPostsService, PostsService>();
+builder.Services.AddScoped<IHashtagService, HashtagService>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
