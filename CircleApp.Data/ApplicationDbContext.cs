@@ -65,7 +65,7 @@ namespace CircleApp.Data
             modelBuilder.Entity<Favorite>()
                 .HasOne(f => f.Post)
                 .WithMany(p => p.Favorites)
-                .HasForeignKey(c => c.PostId)
+                .HasForeignKey(f => f.PostId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Report>()
