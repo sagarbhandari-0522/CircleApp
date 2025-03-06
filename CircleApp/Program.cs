@@ -8,6 +8,7 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectio
 builder.Services.AddScoped<IPostsService, PostsService>();
 builder.Services.AddScoped<IHashtagService, HashtagService>();
 builder.Services.AddScoped<IStoryService, StoryService>();
+builder.Services.AddScoped<IFileService, FileService>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

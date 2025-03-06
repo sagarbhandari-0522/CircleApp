@@ -30,18 +30,8 @@ namespace CircleApp.Services
                 .ToList();
             return (allPosts);
         }
-        public Post CreatePost(Post post, IFormFile image)
+        public Post CreatePost(Post post)
         {
-            string uniqueFileName = null;
-            if (image != null)
-            {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "uploads");
-                Directory.CreateDirectory(uploadsFolder);
-                uniqueFileName = Guid.NewGuid().ToString() + "_" + image.FileName;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                image.CopyTo(new FileStream(filePath, FileMode.Create));
-                post.ImageUrl = uniqueFileName;
-            }
             try
             {
                 _context.Posts.Add(post);
@@ -50,7 +40,6 @@ namespace CircleApp.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to save post {ex.Message}");
-
             }
             return post;
         }
