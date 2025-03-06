@@ -20,14 +20,16 @@ namespace CircleApp.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IPostsService _postService;
         private readonly IHashtagService _hashTagService;
+        private readonly IFileService _fileService;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, IPostsService postService, IHashtagService hashTagService)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, IPostsService postService, IHashtagService hashTagService, IFileService fileService)
         {
             _logger = logger;
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _postService = postService;
             _hashTagService = hashTagService;
+            _fileService = fileService;
 
         }
        
@@ -51,11 +53,11 @@ namespace CircleApp.Controllers
                 Content = model.Content,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                ImageUrl = null,
+                ImageUrl = _fileService.UploadFile(model.Image, ImageType.PostImage),
                 User = _context.Users.FirstOrDefault(u => u.Id == currentUserId),
                 NrOfReports = 0
             };
-            _postService.CreatePost(post, model.Image);
+            _postService.CreatePost(post);
             _hashTagService.ProcessHashtagsForNewPost(post.Content);
             return RedirectToAction("Index");
         }
