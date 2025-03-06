@@ -14,20 +14,11 @@ namespace CircleApp.Services
             _context = context;
             _webHostEnvironment = webHostEnvironment;
         }
-        public Story CreateStory(Story story, IFormFile image)
+        public Story CreateStory(Story story)
         {
-            string uniqueFileName = null;
-            if (image != null)
-            {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "stories");
-                Directory.CreateDirectory(uploadsFolder);
-                uniqueFileName = Guid.NewGuid().ToString() + "_" + image.FileName;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                image.CopyTo(new FileStream(filePath, FileMode.Create));
-                story.ImageUrl = uniqueFileName;
-                _context.Stories.Add(story);
-                _context.SaveChanges();
-            }
+
+            _context.Stories.Add(story);
+            _context.SaveChanges();
             return story;
         }
 
