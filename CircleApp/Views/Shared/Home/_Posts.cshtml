@@ -10,6 +10,16 @@
     {
         isPostowner = true;
     }
+    var comments = new List<Comment>();
+    if(ViewBag.ShowAllComments)
+    {
+        comments = Model.Comments.OrderByDescending(c => c.UpdatedAt).ToList(); 
+
+    }
+    else
+    {
+       comments = Model.Comments.OrderByDescending(c => c.UpdatedAt).Take(3).ToList();
+    }
 
 }
 <div class="bg-white rounded-xl shadow-sm text-sm font-medium border1">
@@ -17,7 +27,7 @@
     @* Post heading *@
     <div class="flex gap-3 sm:p-4 p-2.5 text-sm font-medium">
         <a>
-            <img src="@(string.IsNullOrEmpty(Model.User.ProfilePictureUrl)?" ~ /images/avatar/user.jpeg": Model.User.ProfilePictureUrl)" class="w-9 h-9 rounded-full" />
+            <img src="@((Model.User.ProfilePictureUrl!=null)? Url.Content($"~/images/uploads/profile_pictures/{Model.User.ProfilePictureUrl}"):"~/images/avatar/user.jpeg")" class="w-9 h-9 rounded-full" />
         </a>
         <div class="flex-1">
             <a>
@@ -59,7 +69,7 @@
     </div>
 
     @* Post content *@
-    <a>
+    <a asp-controller="Home" asp-action="Details" asp-route-postId="@Model.Id">
         <div class="sm:px-4 p-2.5 pt-0 w-full">
             <p class="font-normal">
                 @Model.Content
@@ -118,11 +128,11 @@
 
             <div class="p-2.5 border-t border-gray-100 font-normal space-y-3 relative">
 
-                @foreach (var comment in Model.Comments.OrderByDescending(c => c.UpdatedAt).Take(3))
+                @foreach (var comment in comments)
                 {
                     <div class="flex items-start gap-3 relative">
                         <a>
-                            <img src="@(comment.User.ProfilePictureUrl ?? "~/images/avatar/user.png")" class="w-6 h-6 mt-1 rounded-full" />
+                            <img src="@((comment.User.ProfilePictureUrl!=null)? Url.Content($"~/images/uploads/profile_pictures/{comment.User.ProfilePictureUrl}"): "~/images/avatar/user.jpeg")" class="w-6 h-6 mt-1 rounded-full" />
                         </a>
                         <div class="flex-1">
                             <div class="flex justify-content-between">
@@ -146,10 +156,10 @@
                         </div>
                     </div>
                 }
-                @if (Model.Comments.Count > 3)
+                @if (!ViewBag.ShowAllComments && Model.Comments.Count>3)
                 {
                     <div class="p-1.5">
-                        <a>Show all comments</a>
+                        <a asp-controller="Home" asp-action="Details" asp-route-postId="@Model.Id">Show all comments</a>
                     </div>
                 }
             </div>

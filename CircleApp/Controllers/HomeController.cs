@@ -37,7 +37,14 @@ namespace CircleApp.Controllers
         {
             var currentUserId = 1;
             var allPosts = _postService.GetAllPosts(currentUserId);
+            ViewBag.ShowAllComments = false;
             return View(allPosts);
+        }
+        public IActionResult Details( int postId)
+        {
+            var post = _postService.GetPostDetailsById(postId);
+            ViewBag.ShowAllComments = true;
+            return View(post);
         }
 
         public IActionResult Privacy()

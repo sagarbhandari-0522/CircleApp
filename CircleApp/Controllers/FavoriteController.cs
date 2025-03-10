@@ -17,6 +17,7 @@ namespace CircleApp.Controllers
         {
             var loggedInUser = 1;
             var favoritePosts = _favoriteService.GetAllFavoritePost(loggedInUser);
+            ViewBag.ShowAllComments = false;
             return View(favoritePosts);
         }
     }

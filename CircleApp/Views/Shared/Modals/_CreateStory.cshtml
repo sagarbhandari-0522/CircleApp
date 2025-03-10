@@ -35,13 +35,11 @@
 </div>
 <script>
     document.getElementById("storyUploadBtn").addEventListener('click',(e)=>{
-        debugger;
         e.stopPropagation();
         document.getElementById('storyUpload').value="";
         document.getElementById('storyUpload').click();
     });
     document.getElementById("storyUpload").addEventListener('change',(event)=>{
-        debugger;
         const file=event.target.files[0];
         const storyPreview=document.getElementById('storyPreview');
         if(file)

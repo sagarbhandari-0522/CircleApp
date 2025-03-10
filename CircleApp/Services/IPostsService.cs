@@ -6,8 +6,10 @@ namespace CircleApp.Services
     {
         List<Post> GetAllPosts(int loggedInUser);
         Post GetPostById(int postId);
+        Post GetPostDetailsById(int postId);
         Post CreatePost(Post post);
         Post RemovePost(int postId);
+
         void AddPostComment(Comment comment);
         void RemovePostComment(int commentId);
         void TooglePostLike(int postId,int userId);

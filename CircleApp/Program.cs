@@ -10,6 +10,7 @@ builder.Services.AddScoped<IHashtagService, HashtagService>();
 builder.Services.AddScoped<IStoryService, StoryService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IFavoriteService, FavoriteService>();
+builder.Services.AddScoped<IUserSettingService, UserSettingService>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
