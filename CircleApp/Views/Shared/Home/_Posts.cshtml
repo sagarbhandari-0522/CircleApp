@@ -10,6 +10,16 @@
     {
         isPostowner = true;
     }
+    var comments = new List<Comment>();
+    if(ViewBag.ShowAllComments)
+    {
+        comments = Model.Comments.OrderByDescending(c => c.UpdatedAt).ToList(); 
+
+    }
+    else
+    {
+       comments = Model.Comments.OrderByDescending(c => c.UpdatedAt).Take(3).ToList();
+    }
 
 }
 <div class="bg-white rounded-xl shadow-sm text-sm font-medium border1">
@@ -59,7 +69,7 @@
     </div>
 
     @* Post content *@
-    <a>
+    <a asp-controller="Home" asp-action="Details" asp-route-postId="@Model.Id">
         <div class="sm:px-4 p-2.5 pt-0 w-full">
             <p class="font-normal">
                 @Model.Content
@@ -118,7 +128,7 @@
 
             <div class="p-2.5 border-t border-gray-100 font-normal space-y-3 relative">
 
-                @foreach (var comment in Model.Comments.OrderByDescending(c => c.UpdatedAt).Take(3))
+                @foreach (var comment in comments)
                 {
                     <div class="flex items-start gap-3 relative">
                         <a>
@@ -146,10 +156,10 @@
                         </div>
                     </div>
                 }
-                @if (Model.Comments.Count > 3)
+                @if (!ViewBag.ShowAllComments && Model.Comments.Count>3)
                 {
                     <div class="p-1.5">
-                        <a>Show all comments</a>
+                        <a asp-controller="Home" asp-action="Details" asp-route-postId="@Model.Id">Show all comments</a>
                     </div>
                 }
             </div>
