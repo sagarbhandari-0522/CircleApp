@@ -17,7 +17,7 @@
     @* Post heading *@
     <div class="flex gap-3 sm:p-4 p-2.5 text-sm font-medium">
         <a>
-            <img src="@(string.IsNullOrEmpty(Model.User.ProfilePictureUrl)?" ~ /images/avatar/user.jpeg": Model.User.ProfilePictureUrl)" class="w-9 h-9 rounded-full" />
+            <img src="@((Model.User.ProfilePictureUrl!=null)? Url.Content($"~/images/uploads/profile_pictures/{Model.User.ProfilePictureUrl}"):"~/images/avatar/user.jpeg")" class="w-9 h-9 rounded-full" />
         </a>
         <div class="flex-1">
             <a>
@@ -122,7 +122,7 @@
                 {
                     <div class="flex items-start gap-3 relative">
                         <a>
-                            <img src="@(comment.User.ProfilePictureUrl ?? "~/images/avatar/user.png")" class="w-6 h-6 mt-1 rounded-full" />
+                            <img src="@((comment.User.ProfilePictureUrl!=null)? Url.Content($"~/images/uploads/profile_pictures/{comment.User.ProfilePictureUrl}"): "~/images/avatar/user.jpeg")" class="w-6 h-6 mt-1 rounded-full" />
                         </a>
                         <div class="flex-1">
                             <div class="flex justify-content-between">
