@@ -15,5 +15,17 @@ namespace CircleApp.Services
             var user = _context.Users.FirstOrDefault(u => u.Id == currentUserId);
             return user;
         }
+        public User UpdateProfilePicture(int currentUserId, string imageUrl)
+        {
+            var user = GetUserDetails(currentUserId);
+            if(user!=null)
+            {
+                user.ProfilePictureUrl = imageUrl;
+                _context.Users.Update(user);
+                _context.SaveChanges();
+            }
+            return user;
+        }
+
     }
 }
