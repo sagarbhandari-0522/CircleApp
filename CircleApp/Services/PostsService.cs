@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace CircleApp.Services
 {
 
-    public class PostsService:IPostsService
+    public class PostsService : IPostsService
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
@@ -144,6 +144,18 @@ namespace CircleApp.Services
                 _context.Posts.Update(post);
                 _context.SaveChanges();
             }
+        }
+
+        public Post GetPostDetailsById(int postId)
+        {
+            var post = _context.Posts
+                 .Include(p => p.User)
+                 .Include(p => p.Comments)
+                     .ThenInclude(c => c.User)
+                 .Include(p => p.Likes)
+                 .Include(p=>p.Favorites)
+                 .FirstOrDefault(p => p.Id == postId);
+            return post;
         }
     }
 }
