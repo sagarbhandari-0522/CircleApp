@@ -37,7 +37,8 @@ using(var scope=app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await Dbinitializer.InitializeAsync(dbContext);
-
+    var serviceProvider = scope.ServiceProvider;
+    await Dbinitializer.SeedRolesAndUsersAsync(serviceProvider);
 }
 
 // Configure the HTTP request pipeline.
