@@ -1,16 +1,32 @@
 using CircleApp.Data;
 using CircleApp.Data.Helpers;
+using CircleApp.Data.Models;
 using CircleApp.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
+
+//Database Configuration
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Identity Configuration
+builder.Services.AddIdentity<User, IdentityRole<int>>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+
+// Services Configuration
 builder.Services.AddScoped<IPostsService, PostsService>();
 builder.Services.AddScoped<IHashtagService, HashtagService>();
 builder.Services.AddScoped<IStoryService, StoryService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 builder.Services.AddScoped<IUserSettingService, UserSettingService>();
+
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
@@ -21,7 +37,8 @@ using(var scope=app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await Dbinitializer.InitializeAsync(dbContext);
-
+    var serviceProvider = scope.ServiceProvider;
+    await Dbinitializer.SeedRolesAndUsersAsync(serviceProvider);
 }
 
 // Configure the HTTP request pipeline.
@@ -36,6 +53,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseAuthorization();
 
