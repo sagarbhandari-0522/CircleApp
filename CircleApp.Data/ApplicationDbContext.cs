@@ -10,11 +10,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace CircleApp.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>,int, IdentityUserClaim<int>,        // User Claims
-    IdentityUserRole<int>,         // User Roles
-    IdentityUserLogin<int>,        // User Logins
-    IdentityRoleClaim<int>,        // Role Claims
-    IdentityUserToken<int>>
+    public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>,int>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -32,6 +28,7 @@ namespace CircleApp.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Posts)
@@ -94,14 +91,6 @@ namespace CircleApp.Data
                 .HasForeignKey(s => s.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
             // Ensure Identity uses integer keys everywhere
-            modelBuilder.Entity<User>().ToTable("AspNetUsers").HasKey(u => u.Id);
-            modelBuilder.Entity<IdentityRole<int>>().ToTable("AspNetRoles").HasKey(r => r.Id);
-            modelBuilder.Entity<IdentityUserRole<int>>().ToTable("AspNetUserRoles").HasKey(ur => new { ur.UserId, ur.RoleId });
-            modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("AspNetUserLogins").HasKey(ul => new { ul.LoginProvider, ul.ProviderKey });
-            modelBuilder.Entity<IdentityUserClaim<int>>().ToTable("AspNetUserClaims").HasKey(uc => uc.Id);
-            modelBuilder.Entity<IdentityUserToken<int>>().ToTable("AspNetUserTokens").HasKey(ut => new { ut.UserId, ut.LoginProvider, ut.Name });
-            modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("AspNetRoleClaims").HasKey(rc => rc.Id);
-            //Rename identity table name to user defined table name
             modelBuilder.Entity<User>().ToTable("Users");
             modelBuilder.Entity<IdentityRole<int>>().ToTable("Roles");
             modelBuilder.Entity<IdentityUserRole<int>>().ToTable("UserRoles");
@@ -109,6 +98,7 @@ namespace CircleApp.Data
             modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("UserLogins");
             modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
             modelBuilder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
+
         }
 
     }
