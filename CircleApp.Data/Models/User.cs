@@ -10,7 +10,6 @@ namespace CircleApp.Data.Models
 {
     public class User :IdentityUser<int>
     { 
-        public int Id { get; set; }
         [Required]
         public string FullName { get; set; }
         public string? ProfilePictureUrl { get; set; }
