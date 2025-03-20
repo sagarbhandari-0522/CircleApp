@@ -12,16 +12,20 @@
     @* <link rel="stylesheet" href="~/CircleApp.styles.css" asp-append-version="true" /> *@
 </head>
 <body>
-    
+
     <div id="wrapper">
         @* TopBar *@
-   @*     <partial name="Navigation/_TopBar"/>
-       <partial name="Navigation/_SideBar"/> *@
+        @if (User.Identity.IsAuthenticated)
+        {
+            <h1>@User.Identity.Name</h1>
+            <partial name="Navigation/_TopBar" />
+            <partial name="Navigation/_SideBar" />
+        }
         @RenderBody()
     </div>
-        
 
-   
+
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
