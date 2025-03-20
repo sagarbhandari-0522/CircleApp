@@ -5,10 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using CircleApp.ViewModels;
 using CircleApp.Services;
 using CircleApp.Data.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace CircleApp.Controllers
 {
+    [Authorize]
     public class StoryController : Controller
     {
         private readonly ILogger<StoryController> _logger;

@@ -10,9 +10,11 @@ using System.Diagnostics;
 using CircleApp.ViewModels;
 using Microsoft.Extensions.Hosting;
 using CircleApp.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CircleApp.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
