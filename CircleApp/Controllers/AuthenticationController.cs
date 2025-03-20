@@ -1,8 +1,10 @@
 ﻿using CircleApp.Data.Models;
 using CircleApp.ViewModels;
+using CircleApp.Constants;
 using Microsoft.AspNetCore.Identity;
 
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CircleApp.Controllers
 {
@@ -21,20 +23,27 @@ namespace CircleApp.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Login( LoginVM model)
+        public async Task<IActionResult> Login(LoginVM model)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return View(model);
             }
             var user = await _userManager.FindByEmailAsync(model.Email);
-            if(user==null)
+            if (user == null)
             {
                 ModelState.AddModelError("", "Provided Email is not Registered");
                 return View(model);
             }
-            var result = await _signInManager.PasswordSignInAsync(user, model.Password,model.RememberMe,false);
-            if(result.Succeeded)
+            var existingClaims = await _userManager.GetClaimsAsync(user);
+            var existingClaim = existingClaims.FirstOrDefault(c => c.Type == CustomClaimTypes.FullName);
+            if (existingClaim != null)
+            {
+                await _userManager.RemoveClaimAsync(user, existingClaim);
+            }
+            await _userManager.AddClaimAsync(user, new Claim(CustomClaimTypes.FullName, user.FullName ?? ""));
+            var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, false);
+            if (result.Succeeded)
             {
                 return RedirectToAction("Index", "Home");
 
@@ -71,16 +80,29 @@ namespace CircleApp.Controllers
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "User");
+                var existingClaims = await _userManager.GetClaimsAsync(user);
+                var existingClaim = existingClaims.FirstOrDefault(c => c.Type == CustomClaimTypes.FullName);
+                if (existingClaim != null)
+                {
+                    await _userManager.RemoveClaimAsync(user, existingClaim);
+                }
+                await _userManager.AddClaimAsync(user, new Claim(CustomClaimTypes.FullName, user.FullName ?? ""));
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 return RedirectToAction("Index", "Home");
 
             }
-            foreach(var error in result.Errors)
+            foreach (var error in result.Errors)
             {
                 ModelState.AddModelError("", error.Description);
             }
             return View(model);
 
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Login");
         }
     }
 }
