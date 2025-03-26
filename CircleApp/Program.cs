@@ -30,6 +30,7 @@ builder.Services.AddScoped<IStoryService, StoryService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 builder.Services.AddScoped<IUserSettingService, UserSettingService>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
 
 
 // Add services to the container.

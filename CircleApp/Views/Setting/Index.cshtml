@@ -1,10 +1,10 @@
-﻿﻿ 
-@model User;
+﻿
+@model SettingVM;
 
 <main id="site__main" class="2xl:ml-[--w-side]  xl:ml-[--w-side-sm] p-2.5 h-[calc(100vh-var(--m-top))] mt-[--m-top]">
 
     <div class="max-w-3xl mx-auto">
-        <div class="box relative rounded-lg shadow-md">
+        <div class="box relative rounded-lg shadow-md pb-2">
 
             @* profile picture section *@
             <div class="flex items-center justify-between p-6 pb-4">
@@ -12,49 +12,59 @@
                 <form id="updateProfilePictureForm" class="flex items-center gap-4 w-full" asp-controller="setting" asp-action="updateProfilePicture" method="post" enctype="multipart/form-data">
                     <div class="relative w-12 h-12 shrink-0">
                         <label class="cursor-pointer">
-                            <img id="imagePreview" src="@((Model.ProfilePictureUrl!=null)? Url.Content($"~/images/uploads/profile_pictures/{Model.ProfilePictureUrl}"):Url.Content("~/images/avatar/user.jpeg"))" class="object-cover/ w-full h-full rounded-full" alt="Profile Picture Placeholder" />
+                            <img id="imagePreview" src="@((Model.User.ProfilePictureUrl!=null)? Url.Content($"~/images/uploads/profile_pictures/{Model.User.ProfilePictureUrl}"):Url.Content("~/images/avatar/user.jpeg"))" class="object-cover/ w-full h-full rounded-full" alt="Profile Picture Placeholder" />
                             <input type="file" id="imageUpload" name="ProfilePictureImage" class="hidden" accept="image/png, image/jpeg" />
-                            <input type="hidden" name="postId" value="@Model.Id" />
+                            <input type="hidden" name="postId" value="@Model.User.Id" />
                         </label>
 
                         <label for="imageUpload" class="p-0.5 rounded-full bg-slate-600 border-white absolute -bottom-2 -right-2 cursor-pointer" id="imageUploadBtn">
-                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3 fill-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3 fill-white">
                                 <path d="M12 9a3.75 3.75 0 100 7.5A3.75 3.75 0 0012 9z" />
                                 <path fill-rule="evenodd" d="M9.344 3.071a49.52 49.52 0 015.312 0c.967.052 1.83.585 2.332 1.39l.821 1.317c.24.383.645.643 1.11.71.386.054.77.113 1.152.177 1.432.239 2.429 1.493 2.429 2.909V18a3 3 0 01-3 3h-15a3 3 0 01-3-3V9.574c0-1.416.997-2.67 2.429-2.909.382-.064.766-.123 1.151-.178a1.56 1.56 0 001.11-.71l.822-1.315a2.942 2.942 0 012.332-1.39zM6.75 12.75a5.25 5.25 0 1110.5 0 5.25 5.25 0 01-10.5 0zm12-1.5a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
                             </svg>
                         </label>
                     </div>
                     <div>
-                        <h3 class="text-base font-semibold text-black">@Model.FullName</h3>
+                        <h3 class="text-base font-semibold text-black">@Model.User.FullName</h3>
                         <p class="text-sm text-blue-600 mt-1 font-normal">@@sagarvandari </p>
                     </div>
                     <button type="submit" id="saveButton" class="button bg-blue-500 text-white px-4 py-1 rounded ml-auto">Save</button>
 
                 </form>
+            </div>
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="text-green-600 text-center font-semibold">
+                    <strong>Success!</strong> @TempData["SuccessMessage"]
                 </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="text-red-600 text-center font-semibold">
+                    <strong>Error!</strong> @TempData["ErrorMessage"]
 
-
-            <div class="relative border-b">
-                <nav class="nav__underline px-6 p-0 border-transparent -mb-px">
-                    <ul class="uk-slider-items w-[calc(100%+10px)] !overflow-hidden" 
-                        uk-switcher="connect: #setting_tab; animation: uk-animation-slide-right-medium, uk-animation-slide-left-medium">
-                        <li class="w-auto pr-2.5">
-                            <a href="#">
-                                Update profile
-                            </a>
+                </div>
+            }
+            <div class="relative border-b border-gray-300 mb-4">
+                <nav class="px-6">
+                    <ul class="flex space-x-4">
+                        <li class="cursor-pointer px-4 py-2 border-b-2 tab-link active border-blue-500 text-blue-600 font-medium" data-tab="updateProfile">
+                            Update Profile
                         </li>
-                        <li class="w-auto pr-2.5"><a href="#">Update password</a></li>
+                        <li class="cursor-pointer px-4 py-2 border-b-2 tab-link border-transparent text-gray-600 hover:text-blue-600 hover:border-blue-500 transition-all" data-tab="updatePassword">
+                            Update Password
+                        </li>
                     </ul>
                 </nav>
             </div>
+            <div id="updateProfile" class="tab-content active">
+                <form asp-controller="Setting" asp-action="UpdateProfile">
 
-            <div id="setting_tab" class="uk-switcher py-12 px-20 overflow-hidden text-black text-sm">
-                <div>
                     <div class="space-y-6">
                         <div class="flex items-center gap-10">
                             <label class="w-32 text-right">Full name</label>
                             <div class="flex-1">
-                                <input type="text" name="fullName" placeholder="Enter your full name" value="@Model.FullName" class="w-full" />
+                                <input type="text" name="fullName" placeholder="Enter your full name" value="@Model.User.FullName" class="w-full" />
                             </div>
                         </div>
                         <div class="flex items-center gap-10">
@@ -76,29 +86,39 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-4 mt-16 pl-[10.5rem]">
-                            <button class="button px-6 bg-secondary">Cancel</button>
+                            <button class="button jppx-6 bg-secondary">Cancel</button>
                             <button type="submit" class="button px-10 bg-primary text-white">Save</button>
                         </div>
                     </div>
-                </div>
-                <div>
+                </form>
+            </div>
+
+            <div id="updatePassword" class="tab-content">
+                <form asp-controller="Setting" asp-action="UpdatePassword">
+                    <div class="col-span-2 text-red-500 pl-4 pb-2" asp-validation-summary="ModelOnly"></div>
+                    <input type="hidden" asp-for="@Model.User.Id" value="@Model.User.Id" />
                     <div class="space-y-6">
                         <div class="flex items-center gap-10">
-                            <label class="w-32 text-right">Current password</label>
+                            <label class="w-36 text-right">Current password</label>
                             <div class="flex-1">
-                                <input type="password" name="currentPassword" placeholder="Enter your current password" class="w-full" />
+                                <input asp-for="@Model.UpdatePassword.CurrentPassword" placeholder="Enter your current password" class="w-full" />
+                                <span asp-validation-for="@Model.UpdatePassword.CurrentPassword" class="text-red-500 text-xs mt-1"></span>
                             </div>
                         </div>
                         <div class="flex items-center gap-10">
-                            <label class="w-32 text-right">New password</label>
+                            <label class="w-36 text-right">New password</label>
                             <div class="flex-1">
-                                <input type="password" name="newPassword" placeholder="Enter your new password" value="" class="w-full" />
+                                <input asp-for="@Model.UpdatePassword.NewPassword" placeholder="Enter your new password" value="" class="w-full" />
+                                <span asp-validation-for="@Model.UpdatePassword.NewPassword" class="text-red-500 text-xs mt-1"></span>
+
                             </div>
                         </div>
                         <div class="flex items-center gap-10">
-                            <label class="w-32 text-right">Confirm password</label>
+                            <label class="w-36 text-right">Confirm password</label>
                             <div class="flex-1">
-                                <input type="password" name="confirmPassword" placeholder="Confirm your new password" value="" class="w-full" />
+                                <input asp-for="@Model.UpdatePassword.ConfirmPassword" placeholder="Confirm your new password" value="" class="w-full" />
+                                <span asp-validation-for="@Model.UpdatePassword.ConfirmPassword" class="text-red-500 text-xs mt-1"></span>
+
                             </div>
                         </div>
                         <div class="flex items-center gap-4 mt-16 pl-[10.5rem]">
@@ -106,26 +126,52 @@
                             <button type="submit" class="button px-10 bg-primary text-white">Save</button>
                         </div>
                     </div>
-                </div>
-            </div>
+                </form>
             </div>
         </div>
+    </div>
 </main>
 <script>
-    document.getElementById("imageUploadBtn").addEventListener("click", (e) =>{
-        console.log("Ramesh Prasai");
-        document.getElementById("imageUpload").click();
-    });
-    document.getElementById("imageUpload").addEventListener('change', (e)=>{
-        const file=e.target.files[0];
-        const profilePreview=document.getElementById('imagePreview');
-        if (file)
-        {
-            const reader=new FileReader();
-            reader.onload=(e)=>{
-                profilePreview.src=e.target.result;
+
+    document.addEventListener("DOMContentLoaded", function(){
+        document.getElementById("imageUploadBtn").addEventListener("click", (e) =>{
+            document.getElementById("imageUpload").click();
+        });
+        document.getElementById("imageUpload").addEventListener('change', (e)=>{
+            const file=e.target.files[0];
+            const profilePreview=document.getElementById('imagePreview');
+            if (file)
+            {
+                const reader=new FileReader();
+                reader.onload=(e)=>{
+                    profilePreview.src=e.target.result;
+                }
+                reader.readAsDataURL(file);
             }
-            reader.readAsDataURL(file);
+        });
+
+        function toggleTab(tab)
+        {
+             document.querySelectorAll(".tab-link").forEach(t=>{
+                t.classList.remove("active","text-blue-600", "border-blue-500");
+                t.classList.add("text-gray-600", "border-transparent");
+             });
+            document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+            tab.classList.add("active");
+            document.getElementById(tab.dataset.tab).classList.add("active");
+        }
+
+        document.querySelectorAll(".tab-link").forEach(tab=>{
+            tab.addEventListener("click", function(){
+                toggleTab(this);
+            });
+
+        });
+        var activeTab="@TempData["ActiveTab"]";
+        var tabButton=document.querySelector(`[data-tab="${activeTab}"]`);
+        if(tabButton)
+        {
+            toggleTab(tabButton);
         }
     });
 </script>
