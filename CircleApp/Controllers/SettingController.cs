@@ -24,15 +24,18 @@ namespace CircleApp.Controllers
             _passwordService = passwordService; 
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             TempData["ActiveTab"] = "updateProfile";
-            var currentUserId = 2;
-
-            var user = _userSettingService.GetUserDetails(currentUserId);
+            var loggedInUser = await _userManager.GetUserAsync(User);
+            if(loggedInUser==null)
+            {
+                TempData["ErrorMessage"] = "Please Log in ...";
+                return RedirectToAction("Login", "Authentication");
+            }
             var model = new SettingVM
             {
-                User = user,
+                User = loggedInUser,
                 UpdatePassword = new UpdatePasswordVM()
 
             };
@@ -41,9 +44,23 @@ namespace CircleApp.Controllers
         [HttpPost]
         public IActionResult UpdateProfilePicture(UpdateProfilePictureVM model)
         {
-            var currentUserId = 1;
-            var profilePictureUrl = _fileService.UploadFile(model.ProfilePictureImage, ImageType.ProfilePicture);
-            _userSettingService.UpdateProfilePicture(currentUserId, profilePictureUrl);
+            if(!ModelState.IsValid)
+            {
+                TempData["ProfileErrorMessage"] = "Invalid Image";
+                return RedirectToAction("Index");
+            }
+            var currentUserId = _userManager.GetUserId(User);
+            if (currentUserId == null)
+            {
+                TempData["ErrorMessage"] = "Please Login First...";
+                return RedirectToAction("Login", "Authentication");
+            }
+            else
+            {
+                var profilePictureUrl = _fileService.UploadFile(model.ProfilePictureImage, ImageType.ProfilePicture);
+                _userSettingService.UpdateProfilePicture(int.Parse(currentUserId), profilePictureUrl);
+
+            }
 
 
             return RedirectToAction("Index");
@@ -88,9 +105,6 @@ namespace CircleApp.Controllers
                 return RedirectToAction("Index");
             }
         }
-        public IActionResult UpdateProfile()
-        {
-            return View("Index", "Home");
-        }
+     
     }
 }

@@ -98,6 +98,34 @@ namespace CircleApp.Controllers
             return View(model);
 
         }
+        [HttpPost]
+        public async Task< IActionResult> UpdateProfile(UpdateProfileVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Invalid Request";
+                return RedirectToAction("Index", "Setting");
+            }
+            var loggedInUser = await _userManager.GetUserAsync(User);
+            if (loggedInUser == null)
+            {
+                TempData["ErrorMessage"] = "Please log in to update profile";
+                return RedirectToAction("Login");
+            }
+            loggedInUser.FullName = model.FullName;
+            loggedInUser.UserName = model.UserName;
+            loggedInUser.Bio = model.Bio;
+            var updateResult = await _userManager.UpdateAsync(loggedInUser);
+            if(updateResult.Succeeded)
+            {
+                TempData["SuccessMessage"] = "User updated successfully";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "User Update Failed";
+            }
+            return RedirectToAction("Index", "Setting");
+        }
 
         public async Task<IActionResult> Logout()
         {
