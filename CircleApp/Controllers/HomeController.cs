@@ -11,11 +11,12 @@ using CircleApp.ViewModels;
 using Microsoft.Extensions.Hosting;
 using CircleApp.Services;
 using Microsoft.AspNetCore.Authorization;
+using CircleApp.Controllers.Base;
 
 namespace CircleApp.Controllers
 {
     [Authorize]
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
@@ -37,8 +38,9 @@ namespace CircleApp.Controllers
        
         public IActionResult Index()
         {
-            var currentUserId = 1;
-            var allPosts = _postService.GetAllPosts(currentUserId);
+            int? currentUserId = GetUserId();
+            if (currentUserId == null) return RedirectToLogin();
+            var allPosts = _postService.GetAllPosts(currentUserId.Value);
             ViewBag.ShowAllComments = false;
             return View(allPosts);
         }
@@ -56,14 +58,15 @@ namespace CircleApp.Controllers
         [HttpPost]
         public IActionResult Create(PostCreateViewModel model )
         {
-            int currentUserId = 1;
+            int? currentUserId = GetUserId();
+            if (currentUserId == null) return RedirectToLogin();
             Post post = new Post
             {
                 Content = model.Content,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 ImageUrl = _fileService.UploadFile(model.Image, ImageType.PostImage),
-                User = _context.Users.FirstOrDefault(u => u.Id == currentUserId),
+                User = _context.Users.FirstOrDefault(u => u.Id == currentUserId.Value),
                 NrOfReports = 0
             };
             _postService.CreatePost(post);
@@ -73,30 +76,33 @@ namespace CircleApp.Controllers
         [HttpPost]
         public IActionResult TogglePostLike(TogglePostLikeViewModel model)
         {
-            var currentUserId = 1;
-            _postService.TooglePostLike(model.postId, currentUserId);
+            int? currentUserId = GetUserId();
+            if (currentUserId == null) return RedirectToLogin();
+            _postService.TooglePostLike(model.postId, currentUserId.Value);
             return RedirectToAction("Index");
         }
         [HttpPost]
         public IActionResult TogglePostVisibility(TogglePostVisibilityVM model)
         {
-            var currentUserId = 1;
-            _postService.TogglePostVisibility(model.PostId, currentUserId);
+            int? currentUserId = GetUserId();
+            if (currentUserId == null) return RedirectToLogin();
+            _postService.TogglePostVisibility(model.PostId, currentUserId.Value);
            
             return RedirectToAction("Index");
         }
         [HttpPost]
         public IActionResult PostComment(PostCommentVM model)
         {
-            var currentUserId = 1;
+            int? currentUserId = GetUserId();
+            if (currentUserId == null) return RedirectToLogin();
             var comment = new Comment
             {
-                UserId = currentUserId,
+                UserId = currentUserId.Value,
                 PostId = model.PostId,
                 Content = model.Content,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                User = _context.Users.FirstOrDefault(u => u.Id == currentUserId),
+                User = _context.Users.FirstOrDefault(u => u.Id == currentUserId.Value),
                 Post = _context.Posts.FirstOrDefault(p => p.Id == model.PostId)
 
             };
@@ -113,16 +119,18 @@ namespace CircleApp.Controllers
         [HttpPost]
         public IActionResult TogglePostFavorite(TogglePostFavoriteVM model)
         {
-            var currentUserId = 1;
-            _postService.TooglePostFavorite(model.PostId, currentUserId);
+            int? currentUserId = GetUserId();
+            if (currentUserId == null) return RedirectToLogin();
+            _postService.TooglePostFavorite(model.PostId, currentUserId.Value);
           
             return RedirectToAction("Index");
         }
 
         public IActionResult AddPostReport(PostReportVM model)
         {
-            var currentUserId = 1;
-            _postService.ReportPost(model.PostId, currentUserId);
+            int? currentUserId = GetUserId();
+            if (currentUserId == null) return RedirectToLogin();
+            _postService.ReportPost(model.PostId, currentUserId.Value);
             return RedirectToAction("Index");
         }
         [HttpPost]
