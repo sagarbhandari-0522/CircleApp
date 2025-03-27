@@ -13,6 +13,7 @@ namespace CircleApp.Data.Models
         [Required]
         public string FullName { get; set; }
         public string? ProfilePictureUrl { get; set; }
+        public string? Bio { get; set; }
         public ICollection<Post> Posts { get; set; }
         public ICollection<Like> Likes { get; set; }
         public ICollection<Report> Reports { get; set; } = new List<Report>();
