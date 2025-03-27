@@ -14,8 +14,13 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectio
 builder.Services.AddIdentity<User, IdentityRole<int>>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
-
-builder.Services.AddAuthentication();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Authentication/Login";
+    options.AccessDeniedPath = "/Authentication/AccessDenied";
+    options.SlidingExpiration = true;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+});
 builder.Services.AddAuthorization();
 
 // Services Configuration
@@ -25,6 +30,7 @@ builder.Services.AddScoped<IStoryService, StoryService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 builder.Services.AddScoped<IUserSettingService, UserSettingService>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
 
 
 // Add services to the container.

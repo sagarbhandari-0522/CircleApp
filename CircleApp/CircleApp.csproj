@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="Views\Story\" />
+    <Folder Include="wwwroot\images\welcome\" />
   </ItemGroup>
 
 </Project>

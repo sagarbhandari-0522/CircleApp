@@ -1,9 +1,11 @@
 ﻿using CircleApp.Data;
 using CircleApp.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CircleApp.Controllers
 {
+    [Authorize]
     public class FavoriteController : Controller
     {
         private readonly ApplicationDbContext _context;
