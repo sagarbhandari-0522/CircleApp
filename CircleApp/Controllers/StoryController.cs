@@ -6,12 +6,13 @@ using CircleApp.ViewModels;
 using CircleApp.Services;
 using CircleApp.Data.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using CircleApp.Controllers.Base;
 
 
 namespace CircleApp.Controllers
 {
     [Authorize]
-    public class StoryController : Controller
+    public class StoryController : BaseController
     {
         private readonly ILogger<StoryController> _logger;
         private readonly ApplicationDbContext _context;
@@ -31,12 +32,13 @@ namespace CircleApp.Controllers
         [HttpPost]
         public IActionResult Create(StoryCreateVM model)
         {
-            var currentUserId = 1;
+            int? currentUserId = GetUserId();
+            if (currentUserId == null) return RedirectToLogin();
             var story = new Story
             {
                 ImageUrl = _fileService.UploadFile(model.Image, ImageType.StoryImage),
                 CreatedAt = DateTime.UtcNow,
-                UserId = currentUserId,
+                UserId = currentUserId.Value,
             };
             _storyService.CreateStory(story);
             return RedirectToAction("Index", "Home");

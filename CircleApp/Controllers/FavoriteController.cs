@@ -1,4 +1,5 @@
-﻿using CircleApp.Data;
+﻿using CircleApp.Controllers.Base;
+using CircleApp.Data;
 using CircleApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CircleApp.Controllers
 {
     [Authorize]
-    public class FavoriteController : Controller
+    public class FavoriteController : BaseController
     {
         private readonly ApplicationDbContext _context;
         private readonly IFavoriteService _favoriteService;
@@ -17,8 +18,9 @@ namespace CircleApp.Controllers
         }
         public IActionResult Index()
         {
-            var loggedInUser = 1;
-            var favoritePosts = _favoriteService.GetAllFavoritePost(loggedInUser);
+            var currentUserId = GetUserId();
+            if (currentUserId == null) return RedirectToLogin();
+            var favoritePosts = _favoriteService.GetAllFavoritePost(currentUserId.Value);
             ViewBag.ShowAllComments = false;
             return View(favoritePosts);
         }
