@@ -3,10 +3,10 @@
 @model Post
 @{
     int currentUserId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier),out int result)? result:0;
-    var isLiked = Model.Likes.Any(l => l.UserId == 1);
-    var isFavorite = Model.Favorites.Any(l => l.UserId == 1);
+    var isLiked = Model.Likes.Any(l => l.UserId == currentUserId);
+    var isFavorite = Model.Favorites.Any(l => l.UserId == currentUserId);
     var isPostowner = false;
-    bool isReported = Model.Reports.Any(l => l.UserId == 1);
+    bool isReported = Model.Reports.Any(l => l.UserId == currentUserId);
     if (Model.UserId ==currentUserId)
     {
         isPostowner = true;

@@ -99,7 +99,7 @@ namespace CircleApp.Controllers
 
         }
         [HttpPost]
-        public async Task< IActionResult> UpdateProfile(UpdateProfileVM model)
+        public async Task<IActionResult> UpdateProfile(UpdateProfileVM model)
         {
             if (!ModelState.IsValid)
             {
@@ -116,7 +116,7 @@ namespace CircleApp.Controllers
             loggedInUser.UserName = model.UserName;
             loggedInUser.Bio = model.Bio;
             var updateResult = await _userManager.UpdateAsync(loggedInUser);
-            if(updateResult.Succeeded)
+            if (updateResult.Succeeded)
             {
                 TempData["SuccessMessage"] = "User updated successfully";
             }
@@ -125,6 +125,50 @@ namespace CircleApp.Controllers
                 TempData["ErrorMessage"] = "User Update Failed";
             }
             return RedirectToAction("Index", "Setting");
+        }
+
+        public IActionResult ExternalLogin(string provider)
+        {
+            var redirectUrl = Url.Action("ExternalLoginResponse", "Authentication");
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return Challenge(properties, provider);
+        }
+        public async Task<IActionResult> ExternalLoginResponse()
+        {
+            User user;
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                TempData["ErrorMessage"] = "Error authenticating with Google";
+                return RedirectToAction("Login");
+            }
+            if (info.LoginProvider == "Google")
+                 user = await _userManager.FindByEmailAsync(info.Principal.FindFirstValue(ClaimTypes.Email));
+            else
+                 user = await _userManager.FindByNameAsync(info.Principal.FindFirstValue(ClaimTypes.Name));
+            if (user == null)
+            {
+                user = new User
+                {
+                    Email = info.Principal.FindFirstValue(ClaimTypes.Email)?? "",
+                    UserName = info.Principal.FindFirstValue(ClaimTypes.Email)?? info.Principal.FindFirstValue(ClaimTypes.Name),
+                    FullName = info.Principal.FindFirstValue(ClaimTypes.Name) ?? "",
+                    EmailConfirmed = true
+                };
+                var result = await _userManager.CreateAsync(user);
+                await _userManager.AddToRoleAsync(user, "User");
+
+                if (!result.Succeeded)
+                {
+                    TempData["ErrorMessage"] = "Error Creating User";
+                    return RedirectToAction("login");
+
+                }
+            }
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            return RedirectToAction("Index", "Home");
+
+
         }
 
         public async Task<IActionResult> Logout()
