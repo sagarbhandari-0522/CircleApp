@@ -2,6 +2,8 @@ using CircleApp.Data;
 using CircleApp.Data.Helpers;
 using CircleApp.Data.Models;
 using CircleApp.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +23,21 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
 });
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddGoogle(googleOptions =>
+    {
+        googleOptions.ClientId = builder.Configuration["Auth:Google:ClientId"];
+        googleOptions.ClientSecret = builder.Configuration["Auth:Google:ClientSecret"];
+        googleOptions.CallbackPath = "/signin-google";
+    })
+    .AddGitHub(githubOptions =>
+    {
+        githubOptions.ClientId = builder.Configuration["Auth:Github:ClientId"];
+        githubOptions.ClientSecret = builder.Configuration["Auth:Github:ClientSecret"];
+        githubOptions.CallbackPath = "/signin-github";
+    });
+
+
 builder.Services.AddAuthorization();
 
 // Services Configuration
@@ -39,7 +56,7 @@ builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
 //Seed the database with the initial data
-using(var scope=app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await Dbinitializer.InitializeAsync(dbContext);

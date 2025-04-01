@@ -365,3 +365,4 @@ FodyWeavers.xsd
 /CircleApp/wwwroot/uploads/
 /CircleApp/wwwroot/images/stories/
 /ConsoleApp1/
+/CircleApp/appsettings.Development.json
