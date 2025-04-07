@@ -1,8 +1,11 @@
 ﻿@using Humanizer
 @using System.Security.Claims
+@inject UserManager<User> UserManager;
 @model Post
 @{
+    Console.WriteLine(Model);
     int currentUserId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier),out int result)? result:0;
+    var currentUser = await UserManager.GetUserAsync(User);
     var isLiked = Model.Likes.Any(l => l.UserId == currentUserId);
     var isFavorite = Model.Favorites.Any(l => l.UserId == currentUserId);
     var isPostowner = false;
@@ -27,11 +30,11 @@
 
     @* Post heading *@
     <div class="flex gap-3 sm:p-4 p-2.5 text-sm font-medium">
-        <a>
-            <img src="@((Model.User.ProfilePictureUrl!=null)? Url.Content($"~/images/uploads/profile_pictures/{Model.User.ProfilePictureUrl}"):"~/images/avatar/user.jpeg")" class="w-9 h-9 rounded-full" />
+        <a asp-controller="User" asp-action="Details" asp-route-userId="@Model.UserId">
+            <img src="@(!string.IsNullOrEmpty(Model.User.ProfilePictureUrl)? Url.Content($"~/images/uploads/profile_pictures/{Model.User.ProfilePictureUrl}"):Url.Content("~/images/avatar/user.jpeg"))" class="w-9 h-9 rounded-full" />
         </a>
         <div class="flex-1">
-            <a>
+            <a asp-controller="User" asp-action="Details" asp-route-userId="@Model.UserId">
                 <h4 class="text-black">@Model.User.FullName</h4>
                 <div class="text-xs text-gray-500/80" title="@(Model.CreatedAt.ToLocalTime().ToString("MM/dd/yyyy HH:mm"))">@((DateTime.UtcNow - Model.CreatedAt).Humanize()) ago</div>
             </a>
@@ -132,12 +135,12 @@
                 @foreach (var comment in comments)
                 {
                     <div class="flex items-start gap-3 relative">
-                        <a>
-                            <img src="@((comment.User.ProfilePictureUrl!=null)? Url.Content($"~/images/uploads/profile_pictures/{comment.User.ProfilePictureUrl}"): "~/images/avatar/user.jpeg")" class="w-6 h-6 mt-1 rounded-full" />
+                        <a asp-controller="User" asp-action="Details" asp-route-userId="@Model.UserId">
+                            <img src="@((comment.User.ProfilePictureUrl!=null)? Url.Content($"~/images/uploads/profile_pictures/{comment.User.ProfilePictureUrl}"): Url.Content("~/images/avatar/user.jpeg"))" class="w-6 h-6 mt-1 rounded-full" />
                         </a>
                         <div class="flex-1">
                             <div class="flex justify-content-between">
-                                <a class="text-black font-medium inline-block flex-grow">
+                                <a asp-controller="User" asp-action="Details" asp-route-userId="@Model.UserId" class="text-black font-medium inline-block flex-grow">
                                     @comment.User.FullName
                                 </a>
                                 <small>@((DateTime.UtcNow - comment.UpdatedAt).Humanize())</small>
@@ -169,7 +172,7 @@
                 <input type="hidden" name="PostId" value="@Model.Id" />
 
                 <div class="sm:px-4 sm:py-3 p-2.5 border-t border-gray-100 flex items-center gap-1">
-                    <img src="~/images/avatar/user.jpeg" class="w-6 h-6 rounded-full" />
+                    <img src="@(!string.IsNullOrEmpty(currentUser?.ProfilePictureUrl)?Url.Content($"~/images/uploads/profile_pictures/{currentUser.ProfilePictureUrl}"):Url.Content("~/images/avatar/user.jpeg"))" class="w-6 h-6 rounded-full" />
 
                     <div class="flex-1 relative overflow-hidden h-10">
                         <textarea placeholder="Add Comment...." rows="1" class="w-full resize-none !bg-transparent px-4 py-2 focus:!border-transparent focus:!ring-transparent" name="Content"></textarea>
