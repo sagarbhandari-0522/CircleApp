@@ -4,25 +4,26 @@
 @model Post
 @{
     Console.WriteLine(Model);
-    int currentUserId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier),out int result)? result:0;
+    int currentUserId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int result) ? result : 0;
     var currentUser = await UserManager.GetUserAsync(User);
     var isLiked = Model.Likes.Any(l => l.UserId == currentUserId);
     var isFavorite = Model.Favorites.Any(l => l.UserId == currentUserId);
     var isPostowner = false;
     bool isReported = Model.Reports.Any(l => l.UserId == currentUserId);
-    if (Model.UserId ==currentUserId)
+    bool showDetails = ViewBag.ShowDetails as bool? ?? false;
+    if (Model.UserId == currentUserId)
     {
         isPostowner = true;
     }
     var comments = new List<Comment>();
-    if(ViewBag.ShowAllComments)
+    if ((ViewBag.ShowAllComments as bool?) == true)
     {
-        comments = Model.Comments.OrderByDescending(c => c.UpdatedAt).ToList(); 
+        comments = Model.Comments.OrderByDescending(c => c.UpdatedAt).ToList();
 
     }
     else
     {
-       comments = Model.Comments.OrderByDescending(c => c.UpdatedAt).Take(3).ToList();
+        comments = Model.Comments.OrderByDescending(c => c.UpdatedAt).Take(3).ToList();
     }
 
 }
@@ -127,61 +128,64 @@
     </div>
 
     @* Add comment section *@
-    <div>
+    @if (showDetails)
+    {
         <div>
+            <div>
 
-            <div class="p-2.5 border-t border-gray-100 font-normal space-y-3 relative">
+                <div class="p-2.5 border-t border-gray-100 font-normal space-y-3 relative">
 
-                @foreach (var comment in comments)
-                {
-                    <div class="flex items-start gap-3 relative">
-                        <a asp-controller="User" asp-action="Details" asp-route-userId="@Model.UserId">
-                            <img src="@((comment.User.ProfilePictureUrl!=null)? Url.Content($"~/images/uploads/profile_pictures/{comment.User.ProfilePictureUrl}"): Url.Content("~/images/avatar/user.jpeg"))" class="w-6 h-6 mt-1 rounded-full" />
-                        </a>
-                        <div class="flex-1">
-                            <div class="flex justify-content-between">
-                                <a asp-controller="User" asp-action="Details" asp-route-userId="@Model.UserId" class="text-black font-medium inline-block flex-grow">
-                                    @comment.User.FullName
-                                </a>
-                                <small>@((DateTime.UtcNow - comment.UpdatedAt).Humanize())</small>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <p class="mt-0.5">
-                                    @comment.Content
-                                </p>
+                    @foreach (var comment in comments)
+                    {
+                        <div class="flex items-start gap-3 relative">
+                            <a asp-controller="User" asp-action="Details" asp-route-userId="@Model.UserId">
+                                <img src="@((comment.User.ProfilePictureUrl!=null)? Url.Content($"~/images/uploads/profile_pictures/{comment.User.ProfilePictureUrl}"): Url.Content("~/images/avatar/user.jpeg"))" class="w-6 h-6 mt-1 rounded-full" />
+                            </a>
+                            <div class="flex-1">
+                                <div class="flex justify-content-between">
+                                    <a asp-controller="User" asp-action="Details" asp-route-userId="@Model.UserId" class="text-black font-medium inline-block flex-grow">
+                                        @comment.User.FullName
+                                    </a>
+                                    <small>@((DateTime.UtcNow - comment.UpdatedAt).Humanize())</small>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <p class="mt-0.5">
+                                        @comment.Content
+                                    </p>
 
-                                <form asp-controller="Home" asp-action="RemovePostComment">
-                                    <input type="hidden" name="commentId" value="@comment.Id" />
-                                    <button type="submit" class="text-red-500 text-xs ml-2" title="Remove post comment">
-                                        <ion-icon name="trash-outline"></ion-icon>
-                                    </button>
-                                </form>
+                                    <form asp-controller="Home" asp-action="RemovePostComment">
+                                        <input type="hidden" name="commentId" value="@comment.Id" />
+                                        <button type="submit" class="text-red-500 text-xs ml-2" title="Remove post comment">
+                                            <ion-icon name="trash-outline"></ion-icon>
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                }
-                @if (!ViewBag.ShowAllComments && Model.Comments.Count>3)
-                {
-                    <div class="p-1.5">
-                        <a asp-controller="Home" asp-action="Details" asp-route-postId="@Model.Id">Show all comments</a>
-                    </div>
-                }
-            </div>
-
-            <form asp-controller="Home" asp-action="PostComment">
-                <input type="hidden" name="PostId" value="@Model.Id" />
-
-                <div class="sm:px-4 sm:py-3 p-2.5 border-t border-gray-100 flex items-center gap-1">
-                    <img src="@(!string.IsNullOrEmpty(currentUser?.ProfilePictureUrl)?Url.Content($"~/images/uploads/profile_pictures/{currentUser.ProfilePictureUrl}"):Url.Content("~/images/avatar/user.jpeg"))" class="w-6 h-6 rounded-full" />
-
-                    <div class="flex-1 relative overflow-hidden h-10">
-                        <textarea placeholder="Add Comment...." rows="1" class="w-full resize-none !bg-transparent px-4 py-2 focus:!border-transparent focus:!ring-transparent" name="Content"></textarea>
-                    </div>
-                    <button class="text-sm rounded-full py-1.5 px-3.5 bg-secondery">Comment</button>
-
+                    }
+                    @if (!ViewBag.ShowAllComments && Model.Comments.Count > 3)
+                    {
+                        <div class="p-1.5">
+                            <a asp-controller="Home" asp-action="Details" asp-route-postId="@Model.Id">Show all comments</a>
+                        </div>
+                    }
                 </div>
-            </form>
 
+                <form asp-controller="Home" asp-action="PostComment">
+                    <input type="hidden" name="PostId" value="@Model.Id" />
+
+                    <div class="sm:px-4 sm:py-3 p-2.5 border-t border-gray-100 flex items-center gap-1">
+                        <img src="@(!string.IsNullOrEmpty(currentUser?.ProfilePictureUrl)?Url.Content($"~/images/uploads/profile_pictures/{currentUser.ProfilePictureUrl}"):Url.Content("~/images/avatar/user.jpeg"))" class="w-6 h-6 rounded-full" />
+
+                        <div class="flex-1 relative overflow-hidden h-10">
+                            <textarea placeholder="Add Comment...." rows="1" class="w-full resize-none !bg-transparent px-4 py-2 focus:!border-transparent focus:!ring-transparent" name="Content"></textarea>
+                        </div>
+                        <button class="text-sm rounded-full py-1.5 px-3.5 bg-secondery">Comment</button>
+
+                    </div>
+                </form>
+
+            </div>
         </div>
-    </div>
+    }
 </div>

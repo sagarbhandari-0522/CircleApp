@@ -6,5 +6,6 @@ namespace CircleApp.Services
     {
         public User GetUserDetails(int currentUserId);
         public User UpdateProfilePicture(int currentUserId, string imageUrl);
+        public List<Post> GetUserPosts(int userId);
     }
 }
