@@ -85,6 +85,18 @@ namespace CircleApp.Data
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Friendship>()
+                .HasOne(fr => fr.Sender)
+                .WithMany(u => u.SentFriendRequest)
+                .HasForeignKey(fr => fr.SenderId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Friendship>()
+                .HasOne(fr => fr.Receiver)
+                .WithMany(u=> u.ReceivedFriendRequest)
+                .HasForeignKey(fr => fr.ReceiverId)
+                .OnDelete(DeleteBehavior.NoAction);
+
             modelBuilder.Entity<Story>()
                 .HasOne(s => s.User)
                 .WithMany(u => u.Stories)
@@ -98,6 +110,7 @@ namespace CircleApp.Data
             modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("UserLogins");
             modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
             modelBuilder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
+
 
         }
 

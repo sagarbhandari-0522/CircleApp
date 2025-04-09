@@ -20,5 +20,9 @@ namespace CircleApp.Data.Models
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
         public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
         public ICollection<Story> Stories { get; set; } = new List<Story>();
+        public ICollection<Friendship> SentFriendRequest { get; set; } = new List<Friendship>();
+        public ICollection<Friendship> ReceivedFriendRequest { get; set; } = new List<Friendship>();
+
     }
+
 }
