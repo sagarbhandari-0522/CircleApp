@@ -25,6 +25,8 @@ namespace CircleApp.Data
         public DbSet<Report> Reports { get; set; }
         public DbSet<Story> Stories { get; set; }
         public DbSet<Hashtag> Hashtags { get; set; }
+        public DbSet<Friendrequest> Friendrequests { get; set; }
+        public DbSet<Friendship> Friendships { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
