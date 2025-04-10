@@ -1,4 +1,6 @@
-﻿namespace CircleApp.Services
+﻿using CircleApp.Data.Models;
+
+namespace CircleApp.Services
 {
     public interface IFriendshipService
     {
@@ -6,6 +8,7 @@
         Task<(bool Success, List<string> Errors)> AcceptRequest(int requestId);
         Task<(bool Success, List<string> Errors)> RejectRequest(int requestId);
         Task<(bool Success, List<string> Errors)> CancelRequest(int requestId);
+        Task<List<User>> GetSuggestedFriends(int userId);
 
     }
 }

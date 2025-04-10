@@ -222,5 +222,19 @@ namespace CircleApp.Services
                 return (false, errors);
             }
         }
+
+        public async Task<List<User>> GetSuggestedFriends(int userId)
+        {
+            if(userId==0)
+            {
+                throw new Exception("Invalid User Id");
+            }
+            var existingFriends = _context.Friendships.Where(fr => (fr.SenderId == userId) || (fr.ReceiverId == userId)).ToList();
+            var existingFriendIds = existingFriends.Select(fr => (fr.SenderId == userId) ? fr.ReceiverId : fr.SenderId).ToList();
+            var pendingRequests = _context.Friendrequests.Where(fr => (fr.Status == FriendRequestStatus.Pending) && ((fr.SenderId == userId) || (fr.ReceiverId == userId))).ToList();
+            var pendingRequestsIds = pendingRequests.Select(pr => (pr.SenderId == userId ? pr.ReceiverId : pr.SenderId)).ToList();
+            var suggestedFriends = await _context.Users.Where(u => !existingFriendIds.Contains(u.Id) && !pendingRequestsIds.Contains(u.Id) && u.Id!=userId).Take(4).ToListAsync();
+            return suggestedFriends;
+        }
     }
 }
