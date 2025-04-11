@@ -1,6 +1,7 @@
 ﻿using CircleApp.Constants;
 using CircleApp.Data;
 using CircleApp.Data.Models;
+using CircleApp.Dtos;
 using Microsoft.EntityFrameworkCore;
 
 namespace CircleApp.Services
@@ -25,7 +26,7 @@ namespace CircleApp.Services
                     return (false, errors);
                 }
 
-                var (success, createFriendError) = await CreateFriendShip(request.SenderId,request.ReceiverId);
+                var (success, createFriendError) = await CreateFriendShip(request.SenderId, request.ReceiverId);
                 if (success)
                 {
                     request.Status = FriendRequestStatus.Approved;
@@ -40,7 +41,7 @@ namespace CircleApp.Services
                     return (false, errors);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 errors.Add("An error occured while accepting friend request");
                 errors.Add(ex.Message);
@@ -49,7 +50,7 @@ namespace CircleApp.Services
 
         }
 
-        
+
         public async Task<(bool Success, List<string> Errors)> CreateFriendShip(int senderId, int receiverId)
         {
             var errors = new List<string>();
@@ -75,7 +76,7 @@ namespace CircleApp.Services
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 errors.Add(ex.Message);
                 return (false, errors);
@@ -88,8 +89,8 @@ namespace CircleApp.Services
             var errors = new List<string>();
             try
             {
-                var request =await _context.Friendrequests.FirstOrDefaultAsync(fr => fr.Id == requestId);
-                if(request==null)
+                var request = await _context.Friendrequests.FirstOrDefaultAsync(fr => fr.Id == requestId);
+                if (request == null)
                 {
                     errors.Add("Invalid request Id");
                     return (false, errors);
@@ -98,7 +99,7 @@ namespace CircleApp.Services
                 request.Status = FriendRequestStatus.Cancled;
                 _context.Friendrequests.Update(request);
                 var result = await _context.SaveChangesAsync();
-                if(result>0)
+                if (result > 0)
                 {
                     return (true, errors);
                 }
@@ -108,7 +109,7 @@ namespace CircleApp.Services
                     return (false, errors);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 errors.Add("An error occured while creating friend request");
                 errors.Add(ex.Message);
@@ -124,7 +125,7 @@ namespace CircleApp.Services
                 errors.Add("ReceiverId is similar to senderid");
                 return (false, errors);
             }
-            var existFriendrequest = _context.Friendrequests.FirstOrDefault(fr => (fr.Status==FriendRequestStatus.Pending)&&((fr.SenderId == senderId && fr.ReceiverId == receiverid) || (fr.SenderId == receiverid && fr.ReceiverId == senderId)));
+            var existFriendrequest = _context.Friendrequests.FirstOrDefault(fr => (fr.Status == FriendRequestStatus.Pending) && ((fr.SenderId == senderId && fr.ReceiverId == receiverid) || (fr.SenderId == receiverid && fr.ReceiverId == senderId)));
             if (existFriendrequest != null)
             {
                 errors.Add("This friend request is already created");
@@ -199,14 +200,14 @@ namespace CircleApp.Services
             try
             {
                 var friendship = await _context.Friendships.FirstOrDefaultAsync(fr => fr.Id == friendshipid);
-                if(friendship==null)
+                if (friendship == null)
                 {
                     errors.Add("Invalid friendship Id");
                     return (false, errors);
                 }
                 _context.Friendships.Remove(friendship);
-                var result=await _context.SaveChangesAsync();
-                if(result>0)
+                var result = await _context.SaveChangesAsync();
+                if (result > 0)
                 {
                     return (true, errors);
                 }
@@ -216,25 +217,33 @@ namespace CircleApp.Services
                     return (false, errors);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 errors.Add(ex.Message);
                 return (false, errors);
             }
         }
 
-        public async Task<List<User>> GetSuggestedFriends(int userId)
+        public async Task<List<SuggestedFriendsWithNumberOfFriendDto>> GetSuggestedFriends(int userId)
         {
-            if(userId==0)
+            if (userId == 0)
             {
                 throw new Exception("Invalid User Id");
             }
-            var existingFriends = _context.Friendships.Where(fr => (fr.SenderId == userId) || (fr.ReceiverId == userId)).ToList();
-            var existingFriendIds = existingFriends.Select(fr => (fr.SenderId == userId) ? fr.ReceiverId : fr.SenderId).ToList();
-            var pendingRequests = _context.Friendrequests.Where(fr => (fr.Status == FriendRequestStatus.Pending) && ((fr.SenderId == userId) || (fr.ReceiverId == userId))).ToList();
-            var pendingRequestsIds = pendingRequests.Select(pr => (pr.SenderId == userId ? pr.ReceiverId : pr.SenderId)).ToList();
-            var suggestedFriends = await _context.Users.Where(u => !existingFriendIds.Contains(u.Id) && !pendingRequestsIds.Contains(u.Id) && u.Id!=userId).Take(4).ToListAsync();
-            return suggestedFriends;
+            var existingFriendsQuery = _context.Friendships.Where(fr => (fr.SenderId == userId) || (fr.ReceiverId == userId));
+            var existingFriendIds = existingFriendsQuery.Select(fr => (fr.SenderId == userId) ? fr.ReceiverId : fr.SenderId).ToList();
+            var pendingRequestsQuery = _context.Friendrequests.Where(fr => (fr.Status == FriendRequestStatus.Pending) && ((fr.SenderId == userId) || (fr.ReceiverId == userId)));
+            var pendingRequestsIds = pendingRequestsQuery.Select(pr => (pr.SenderId == userId ? pr.ReceiverId : pr.SenderId)).ToList();
+            var suggestedFriends = await _context.Users.Where(u => !existingFriendIds.Contains(u.Id) && !pendingRequestsIds.Contains(u.Id) && u.Id != userId).Take(4).ToListAsync();
+            var suggestedFriendsWihNumberOfFriendDto =  suggestedFriends.Select(u => new SuggestedFriendsWithNumberOfFriendDto()
+            {
+                Id=u.Id,
+                FullName = u.FullName,
+                ProfilePictureUrl = u.ProfilePictureUrl,
+                NumberOfFriends = _context.Friendships.Where(fr => (fr.SenderId == u.Id) || (fr.ReceiverId == u.Id)).Count()
+            }).ToList();
+            return suggestedFriendsWihNumberOfFriendDto;
+
         }
     }
 }

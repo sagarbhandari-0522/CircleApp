@@ -1,4 +1,5 @@
 ﻿using CircleApp.Data.Models;
+using CircleApp.Dtos;
 
 namespace CircleApp.Services
 {
@@ -8,7 +9,7 @@ namespace CircleApp.Services
         Task<(bool Success, List<string> Errors)> AcceptRequest(int requestId);
         Task<(bool Success, List<string> Errors)> RejectRequest(int requestId);
         Task<(bool Success, List<string> Errors)> CancelRequest(int requestId);
-        Task<List<User>> GetSuggestedFriends(int userId);
+        Task<List<SuggestedFriendsWithNumberOfFriendDto>> GetSuggestedFriends(int userId);
 
     }
 }
