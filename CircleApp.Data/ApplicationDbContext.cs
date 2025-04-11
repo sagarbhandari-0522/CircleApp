@@ -10,13 +10,13 @@ using Microsoft.AspNetCore.Identity;
 
 namespace CircleApp.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>,int>
+    public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
         }
-       
+
         public DbSet<Post> Posts { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Like> Likes { get; set; }
@@ -31,7 +31,7 @@ namespace CircleApp.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
+
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Posts)
                 .WithOne(p => p.User)
@@ -89,13 +89,25 @@ namespace CircleApp.Data
 
             modelBuilder.Entity<Friendship>()
                 .HasOne(fr => fr.Sender)
-                .WithMany(u => u.SentFriendRequest)
+                .WithMany(u => u.SentFriendShip)
                 .HasForeignKey(fr => fr.SenderId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Friendship>()
                 .HasOne(fr => fr.Receiver)
-                .WithMany(u=> u.ReceivedFriendRequest)
+                .WithMany(u => u.ReceivedFriendShip)
+                .HasForeignKey(fr => fr.ReceiverId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Friendrequest>()
+                .HasOne(fr => fr.Sender)
+                .WithMany(u => u.SendFriendRequest)
+                .HasForeignKey(fr => fr.SenderId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Friendrequest>()
+                .HasOne(fr => fr.Receiver)
+                .WithMany(u => u.ReceiveFriendRequest)
                 .HasForeignKey(fr => fr.ReceiverId)
                 .OnDelete(DeleteBehavior.NoAction);
 

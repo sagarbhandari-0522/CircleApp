@@ -14,6 +14,8 @@ namespace CircleApp.Data.Models
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public string Status { get; set; }
+        public User Sender { get; set; }
+        public User Receiver { get; set; }
 
     }
 }
