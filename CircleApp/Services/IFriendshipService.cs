@@ -10,6 +10,7 @@ namespace CircleApp.Services
         Task<(bool Success, List<string> Errors)> RejectRequest(int requestId);
         Task<(bool Success, List<string> Errors)> CancelRequest(int requestId);
         Task<List<SuggestedFriendsWithNumberOfFriendDto>> GetSuggestedFriends(int userId);
+        Task<List<Friendrequest>> GetSentFriendRequestAsync(int userId);
 
     }
 }

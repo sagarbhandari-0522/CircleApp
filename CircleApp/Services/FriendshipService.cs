@@ -245,5 +245,18 @@ namespace CircleApp.Services
             return suggestedFriendsWihNumberOfFriendDto;
 
         }
+
+        public async Task<List<Friendrequest>> GetSentFriendRequestAsync(int userId)
+        {
+            if (userId == 0)
+            {
+                throw new Exception("Invalid User Id");
+            }
+            var sentFriendRequestUsers = _context.Friendrequests.Where(fr => fr.SenderId == userId)
+                .Include(fr => fr.Sender)
+                .Include(fr => fr.Receiver).ToList();
+            return sentFriendRequestUsers;
+
+        }
     }
 }

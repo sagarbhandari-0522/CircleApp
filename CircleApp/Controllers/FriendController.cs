@@ -1,5 +1,6 @@
 ﻿using CircleApp.Controllers.Base;
 using CircleApp.Services;
+using CircleApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CircleApp.Controllers
@@ -11,14 +12,21 @@ namespace CircleApp.Controllers
         {
             _friendshipService = friendshipService;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var currentUserId = GetUserId();
+            if (!currentUserId.HasValue) return RedirectToLogin();
+            var sentFriendRequest = await _friendshipService.GetSentFriendRequestAsync(currentUserId.Value);
+            var friendsVm = new FriendsVM()
+            {
+                SentFriendRequest = sentFriendRequest
+            };
+            return View(friendsVm);
         }
         public async Task<IActionResult> SendFriendRequest(int receiverId)
         {
             var senderId = GetUserId();
-            if (!senderId.HasValue) RedirectToAction();
+            if (!senderId.HasValue) RedirectToLogin();
             var result = await _friendshipService.CreateFriendrequest(senderId.Value, receiverId);
             if (result.Success)
             {
