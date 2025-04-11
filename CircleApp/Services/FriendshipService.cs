@@ -2,6 +2,7 @@
 using CircleApp.Data;
 using CircleApp.Data.Models;
 using CircleApp.Dtos;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CircleApp.Services
@@ -235,9 +236,9 @@ namespace CircleApp.Services
             var pendingRequestsQuery = _context.Friendrequests.Where(fr => (fr.Status == FriendRequestStatus.Pending) && ((fr.SenderId == userId) || (fr.ReceiverId == userId)));
             var pendingRequestsIds = pendingRequestsQuery.Select(pr => (pr.SenderId == userId ? pr.ReceiverId : pr.SenderId)).ToList();
             var suggestedFriends = await _context.Users.Where(u => !existingFriendIds.Contains(u.Id) && !pendingRequestsIds.Contains(u.Id) && u.Id != userId).Take(4).ToListAsync();
-            var suggestedFriendsWihNumberOfFriendDto =  suggestedFriends.Select(u => new SuggestedFriendsWithNumberOfFriendDto()
+            var suggestedFriendsWihNumberOfFriendDto = suggestedFriends.Select(u => new SuggestedFriendsWithNumberOfFriendDto()
             {
-                Id=u.Id,
+                Id = u.Id,
                 FullName = u.FullName,
                 ProfilePictureUrl = u.ProfilePictureUrl,
                 NumberOfFriends = _context.Friendships.Where(fr => (fr.SenderId == u.Id) || (fr.ReceiverId == u.Id)).Count()
@@ -248,15 +249,34 @@ namespace CircleApp.Services
 
         public async Task<List<Friendrequest>> GetSentFriendRequestAsync(int userId)
         {
-            if (userId == 0)
-            {
-                throw new Exception("Invalid User Id");
-            }
-            var sentFriendRequestUsers = _context.Friendrequests.Where(fr => fr.SenderId == userId)
-                .Include(fr => fr.Sender)
-                .Include(fr => fr.Receiver).ToList();
+
+            var sentFriendRequestUsers = await _context.Friendrequests.Where(fr => fr.SenderId == userId && fr.Status == FriendRequestStatus.Pending)
+                .Include(fr => fr.Receiver).ToListAsync();
             return sentFriendRequestUsers;
 
         }
+        public async Task<List<Friendrequest>> GetReceivedFriendRequestAsync(int userId)
+        {
+            var receivedFriendRequests = await _context.Friendrequests.Where(fr => fr.ReceiverId == userId && fr.Status == FriendRequestStatus.Pending)
+                .Include(fr => fr.Sender).ToListAsync();
+            return receivedFriendRequests;
+        }
+
+        public async Task<(bool Success,List<User> Friends)> GetFriendsAsync(int userId)
+        {
+            var friends = new List<User>();
+            try
+            {
+                var userFriendShipIds = _context.Friendships.Where(fr => fr.SenderId == userId || fr.ReceiverId == userId);
+                friends = userFriendShipIds.Select(fr => fr.SenderId == userId ? fr.Receiver : fr.Sender).ToList();
+                return (true,friends);
+            }
+            catch (Exception ex)
+            {
+                return (false, friends);
+            }
+        }
+
+        
     }
 }
