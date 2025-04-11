@@ -1,6 +1,7 @@
 ﻿using CircleApp.Data;
 using CircleApp.Data.Models;
 using CircleApp.Services;
+using CircleApp.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,13 +23,15 @@ namespace CircleApp.Components
             {
                 throw new Exception("User must be logged in");
             }
-            var suggestedFriends = await _friendshipService.GetSuggestedFriends(Int32.Parse(loggedInUserId));
-            for(int i=0;i<1000;i++)
+            var suggestedFriendsWithNumberOfFriendDto = await _friendshipService.GetSuggestedFriends(Int32.Parse(loggedInUserId));
+            var suggestedFriendWithNumberOfFriendVM = suggestedFriendsWithNumberOfFriendDto.Select(f => new SuggestedFriendWithNumberOfFriendVM()
             {
-                Console.Write("*");
-            }
-            Console.WriteLine(suggestedFriends);
-            return View(suggestedFriends);
+                Id = f.Id,
+                FullName = f.FullName,
+                ProfilePictureUrl = f.ProfilePictureUrl,
+                NumberOfFriend = f.NumberOfFriends
+            }).ToList();
+            return View(suggestedFriendWithNumberOfFriendVM);
         }
     }
 }
