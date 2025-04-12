@@ -13,6 +13,8 @@ namespace CircleApp.Services
         Task<List<Friendrequest>> GetSentFriendRequestAsync(int userId);
         Task<List<Friendrequest>> GetReceivedFriendRequestAsync(int userId);
         Task<(bool Success,List<User> Friends)> GetFriendsAsync(int userId);
+        Task<(bool Success, List<string> Errors)> RemoveFriendAsync(int currentUserId,int friendId);
+        Task<(bool Success, List<string> Errors)> RemoveFriendRequestAsync(int currentUserId, int friendId);
 
     }
 }

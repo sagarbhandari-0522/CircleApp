@@ -195,12 +195,12 @@ namespace CircleApp.Services
             }
 
         }
-        public async Task<(bool Success, List<string> Errors)> RemoveFriendAsync(int friendshipid)
+        public async Task<(bool Success, List<string> Errors)> RemoveFriendAsync(int currentUserId, int friendId)
         {
             var errors = new List<string>();
             try
             {
-                var friendship = await _context.Friendships.FirstOrDefaultAsync(fr => fr.Id == friendshipid);
+                var friendship = await _context.Friendships.FirstOrDefaultAsync(fr => (fr.SenderId == currentUserId && fr.ReceiverId == friendId) || (fr.SenderId == friendId && fr.ReceiverId == currentUserId));
                 if (friendship == null)
                 {
                     errors.Add("Invalid friendship Id");
@@ -223,6 +223,37 @@ namespace CircleApp.Services
                 errors.Add(ex.Message);
                 return (false, errors);
             }
+        }
+        public async Task<(bool Success, List<string> Errors)> RemoveFriendRequestAsync(int currentUserId, int friendId)
+        {
+            var errors = new List<string>();
+            try
+            {
+                var friendRequest = await _context.Friendrequests.Where(fr => (fr.SenderId == currentUserId && fr.ReceiverId == friendId) || (fr.SenderId == friendId && fr.ReceiverId == currentUserId)).ToListAsync();
+                if (friendRequest == null)
+                {
+                    errors.Add("Invalid friendship Id");
+                    return (false, errors);
+                }
+                _context.Friendrequests.RemoveRange(friendRequest);
+                var result = await _context.SaveChangesAsync();
+                if (result > 0)
+                {
+                    return (true, errors);
+                }
+                else
+                {
+                    errors.Add("Unable to  remove friend request");
+                    return (false, errors);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                errors.Add(ex.Message);
+                return (false, errors);
+            }
+            
         }
 
         public async Task<List<SuggestedFriendsWithNumberOfFriendDto>> GetSuggestedFriends(int userId)
@@ -262,14 +293,14 @@ namespace CircleApp.Services
             return receivedFriendRequests;
         }
 
-        public async Task<(bool Success,List<User> Friends)> GetFriendsAsync(int userId)
+        public async Task<(bool Success, List<User> Friends)> GetFriendsAsync(int userId)
         {
             var friends = new List<User>();
             try
             {
                 var userFriendShipIds = _context.Friendships.Where(fr => fr.SenderId == userId || fr.ReceiverId == userId);
                 friends = userFriendShipIds.Select(fr => fr.SenderId == userId ? fr.Receiver : fr.Sender).ToList();
-                return (true,friends);
+                return (true, friends);
             }
             catch (Exception ex)
             {
@@ -277,6 +308,6 @@ namespace CircleApp.Services
             }
         }
 
-        
+
     }
 }
