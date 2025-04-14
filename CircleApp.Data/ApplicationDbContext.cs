@@ -10,13 +10,13 @@ using Microsoft.AspNetCore.Identity;
 
 namespace CircleApp.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>,int>
+    public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
         }
-       
+
         public DbSet<Post> Posts { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Like> Likes { get; set; }
@@ -25,11 +25,13 @@ namespace CircleApp.Data
         public DbSet<Report> Reports { get; set; }
         public DbSet<Story> Stories { get; set; }
         public DbSet<Hashtag> Hashtags { get; set; }
+        public DbSet<Friendrequest> Friendrequests { get; set; }
+        public DbSet<Friendship> Friendships { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
+
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Posts)
                 .WithOne(p => p.User)
@@ -85,6 +87,30 @@ namespace CircleApp.Data
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Friendship>()
+                .HasOne(fr => fr.Sender)
+                .WithMany(u => u.SentFriendShip)
+                .HasForeignKey(fr => fr.SenderId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Friendship>()
+                .HasOne(fr => fr.Receiver)
+                .WithMany(u => u.ReceivedFriendShip)
+                .HasForeignKey(fr => fr.ReceiverId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Friendrequest>()
+                .HasOne(fr => fr.Sender)
+                .WithMany(u => u.SendFriendRequest)
+                .HasForeignKey(fr => fr.SenderId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Friendrequest>()
+                .HasOne(fr => fr.Receiver)
+                .WithMany(u => u.ReceiveFriendRequest)
+                .HasForeignKey(fr => fr.ReceiverId)
+                .OnDelete(DeleteBehavior.NoAction);
+
             modelBuilder.Entity<Story>()
                 .HasOne(s => s.User)
                 .WithMany(u => u.Stories)
@@ -98,6 +124,7 @@ namespace CircleApp.Data
             modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("UserLogins");
             modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
             modelBuilder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
+
 
         }
 

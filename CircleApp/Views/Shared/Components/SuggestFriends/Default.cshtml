@@ -1,0 +1,29 @@
+﻿@model List<SuggestedFriendWithNumberOfFriendVM>
+<div class="flex items-baseline justify-between text-black">
+    <h3 class="font-bold text-base"> People you may know </h3>
+</div>
+
+<div class="side-list">
+
+    @foreach (var data in Model)
+    {
+        <div class="side-list-item">
+            <a>
+                <img src=@(string.IsNullOrEmpty(data.ProfilePictureUrl)? Url.Content("~/images/avatar/user.jpeg"):Url.Content($"~/images/uploads/profile_pictures/{data.ProfilePictureUrl}")) class="side-list-image rounded-full" />
+            </a>
+            <div class="flex-1">
+                <a>
+                    <h4 class="side-list-title">
+                        @data.FullName
+                    </h4>
+                </a>
+                <div class="side-list-info">@data.FollowerText</div>
+            </div>
+            <form asp-controller="Friend" asp-action="SendFriendRequest">
+                <input type="hidden" name="receiverId" value="@data.Id"/>
+                <button type="submit" class="button bg-primary-soft text-primary">Follow</button>
+            </form>
+        </div>
+    }
+
+</div>

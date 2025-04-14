@@ -4,6 +4,7 @@ using CircleApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CircleApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250409074551_change_type_of_createdat_to_datetime")]
+    partial class change_type_of_createdat_to_datetime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,20 +110,16 @@ namespace CircleApp.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ReceiverId");
-
-                    b.HasIndex("SenderId");
-
                     b.ToTable("Friendrequests");
                 });
 
             modelBuilder.Entity("CircleApp.Data.Models.Friendship", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -134,7 +133,7 @@ namespace CircleApp.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.HasIndex("ReceiverId");
 
@@ -536,35 +535,16 @@ namespace CircleApp.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CircleApp.Data.Models.Friendrequest", b =>
-                {
-                    b.HasOne("CircleApp.Data.Models.User", "Receiver")
-                        .WithMany("ReceiveFriendRequest")
-                        .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("CircleApp.Data.Models.User", "Sender")
-                        .WithMany("SendFriendRequest")
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Receiver");
-
-                    b.Navigation("Sender");
-                });
-
             modelBuilder.Entity("CircleApp.Data.Models.Friendship", b =>
                 {
                     b.HasOne("CircleApp.Data.Models.User", "Receiver")
-                        .WithMany("ReceivedFriendShip")
+                        .WithMany("ReceivedFriendRequest")
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("CircleApp.Data.Models.User", "Sender")
-                        .WithMany("SentFriendShip")
+                        .WithMany("SentFriendRequest")
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -706,15 +686,11 @@ namespace CircleApp.Data.Migrations
 
                     b.Navigation("Posts");
 
-                    b.Navigation("ReceiveFriendRequest");
-
-                    b.Navigation("ReceivedFriendShip");
+                    b.Navigation("ReceivedFriendRequest");
 
                     b.Navigation("Reports");
 
-                    b.Navigation("SendFriendRequest");
-
-                    b.Navigation("SentFriendShip");
+                    b.Navigation("SentFriendRequest");
 
                     b.Navigation("Stories");
                 });
