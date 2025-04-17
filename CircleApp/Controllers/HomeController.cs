@@ -35,7 +35,7 @@ namespace CircleApp.Controllers
             _fileService = fileService;
 
         }
-       
+
         public IActionResult Index()
         {
             int? currentUserId = GetUserId();
@@ -44,7 +44,7 @@ namespace CircleApp.Controllers
             ViewBag.ShowAllComments = false;
             return View(allPosts);
         }
-        public IActionResult Details( int postId)
+        public IActionResult Details(int postId)
         {
             var post = _postService.GetPostDetailsById(postId);
             ViewBag.ShowAllComments = true;
@@ -56,7 +56,7 @@ namespace CircleApp.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult Create(PostCreateViewModel model )
+        public IActionResult Create(PostCreateViewModel model)
         {
             int? currentUserId = GetUserId();
             if (currentUserId == null) return RedirectToLogin();
@@ -74,12 +74,15 @@ namespace CircleApp.Controllers
             return RedirectToAction("Index");
         }
         [HttpPost]
-        public IActionResult TogglePostLike(TogglePostLikeViewModel model)
+        public async Task< IActionResult> TogglePostLike(TogglePostLikeViewModel model)
         {
+
+            if (!ModelState.IsValid) return BadRequest();
             int? currentUserId = GetUserId();
             if (currentUserId == null) return RedirectToLogin();
-            _postService.TooglePostLike(model.postId, currentUserId.Value);
-            return RedirectToAction("Index");
+            var result = _postService.TooglePostLike(model.postId, currentUserId.Value);
+            var likeCount = await  _postService.GetPostLikeCount(model.postId);
+            return Json(new { success = result.Success, isLiked=result.isLiked, likeCount=likeCount });
         }
         [HttpPost]
         public IActionResult TogglePostVisibility(TogglePostVisibilityVM model)
@@ -87,7 +90,7 @@ namespace CircleApp.Controllers
             int? currentUserId = GetUserId();
             if (currentUserId == null) return RedirectToLogin();
             _postService.TogglePostVisibility(model.PostId, currentUserId.Value);
-           
+
             return RedirectToAction("Index");
         }
         [HttpPost]
@@ -117,13 +120,13 @@ namespace CircleApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult TogglePostFavorite(TogglePostFavoriteVM model)
+        public async Task<IActionResult> TogglePostFavorite(TogglePostFavoriteVM model)
         {
             int? currentUserId = GetUserId();
             if (currentUserId == null) return RedirectToLogin();
-            _postService.TooglePostFavorite(model.PostId, currentUserId.Value);
-          
-            return RedirectToAction("Index");
+            var result=await _postService.TooglePostFavoriteAsync(model.PostId, currentUserId.Value);
+            var favoriteCount = await  _postService.GetPostFavoriteCount(model.PostId);
+            return Json(new { success = result.success, isFavorite=result.isFavorite, favoriteCount=favoriteCount });
         }
 
         public IActionResult AddPostReport(PostReportVM model)
@@ -136,7 +139,7 @@ namespace CircleApp.Controllers
         [HttpPost]
         public IActionResult RemovePost(PostDeleteVM model)
         {
-            var post=_postService.RemovePost(model.PostId);
+            var post = _postService.RemovePost(model.PostId);
             _hashTagService.ProcessHashtagsForRemovePost(post.Content);
             return RedirectToAction("Index");
         }

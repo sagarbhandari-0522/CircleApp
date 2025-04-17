@@ -76,7 +76,7 @@ namespace CircleApp.Services
 
             }
         }
-      
+
         public void ReportPost(int postId, int userId)
         {
             var report = new Report()
@@ -89,13 +89,14 @@ namespace CircleApp.Services
             _context.SaveChanges();
         }
 
-        public void TooglePostFavorite(int postId, int userId)
+        public async Task<(bool success, bool isFavorite)> TooglePostFavoriteAsync(int postId, int userId)
         {
             var favorite = _context.Favorites.FirstOrDefault(f => f.UserId == userId && f.PostId == postId);
             if (favorite != null)
             {
                 _context.Favorites.Remove(favorite);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
+                return (true, false);
             }
             else
             {
@@ -105,20 +106,20 @@ namespace CircleApp.Services
                     PostId = postId,
                     CreatedAt = DateTime.UtcNow
                 };
-                _context.Favorites.Add(newFavorite);
+                await _context.Favorites.AddAsync(newFavorite);
                 _context.SaveChanges();
-
-
+                return (true, true);
             }
         }
 
-        public void TooglePostLike(int postId, int userId)
+        public (bool Success, bool isLiked) TooglePostLike(int postId, int userId)
         {
             var likeToRemove = _context.Likes.FirstOrDefault(l => l.UserId == userId && l.PostId == postId);
             if (likeToRemove != null)
             {
                 _context.Likes.Remove(likeToRemove);
                 _context.SaveChanges();
+                return (true, false);
             }
             else
             {
@@ -131,8 +132,8 @@ namespace CircleApp.Services
                 };
                 _context.Likes.Add(like);
                 _context.SaveChanges();
+                return (true, true);
             }
-
         }
 
         public void TogglePostVisibility(int postId, int userId)
@@ -153,9 +154,24 @@ namespace CircleApp.Services
                  .Include(p => p.Comments)
                      .ThenInclude(c => c.User)
                  .Include(p => p.Likes)
-                 .Include(p=>p.Favorites)
+                 .Include(p => p.Favorites)
                  .FirstOrDefault(p => p.Id == postId);
             return post;
+        }
+
+        public async Task<int> GetPostLikeCount(int postId)
+        {
+            //var post = await (_context.Posts.FirstOrDefaultAsync(p => p.Id == postId).Include(p => p.Likes);
+            var post = await _context.Posts.Include(p => p.Likes).FirstOrDefaultAsync(p => p.Id == postId);
+            var likeCount = post?.Likes.Count ?? 0;
+            return likeCount;
+        }
+        public async Task<int> GetPostFavoriteCount(int postId)
+        {
+            var post = await _context.Posts.Include(p => p.Favorites).FirstOrDefaultAsync(p => p.Id == postId);
+            var favoriteCount = post?.Favorites?.Count()?? 0;
+           
+            return favoriteCount;
         }
     }
 }

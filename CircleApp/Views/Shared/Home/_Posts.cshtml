@@ -95,7 +95,8 @@
     <div class="sm:p-4 p-2.5 flex items-center gap-4 text-xs font-semibold">
 
         <div class="flex items-center gap-2.5">
-            <form asp-controller="Home" asp-action="TogglePostLike">
+            <form asp-controller="Home" asp-action="TogglePostLike" class="like-form" data-post-id="@Model.Id">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="postId" value="@Model.Id" />
                 <button type="submit" class="button-icon @(isLiked?"text-red-500 bg-red-100":"")">
                     <ion-icon class="text-lg " name="@(isLiked?"heart":"heart-outline")"></ion-icon>
@@ -115,7 +116,8 @@
         <div class="ml-auto"></div>
 
         <div class="flex items-center gap-2.5">
-            <form asp-controller="Home" asp-action="TogglePostFavorite">
+            <form asp-controller="Home" asp-action="TogglePostFavorite" class="favorite-form" data-post-id="@Model.Id">
+                @Html.AntiForgeryToken()
                 <input type="hidden" value="@Model.Id" name="PostId" />
                 <a class="button-icon ml-auto">
                     <button type="submit" class="button-icon ml-auto @(isFavorite?"text-orange-500 bg-orange-100":"")">
@@ -125,6 +127,8 @@
             </form>
             <a href="#">@Model.Favorites.Count</a>
         </div>
+
+
     </div>
 
     @* Add comment section *@
