@@ -45,8 +45,13 @@ namespace CircleApp.Services
         }
         public Post GetPostById(int postId)
         {
-            Post post = null;
-            post = _context.Posts.FirstOrDefault(p => p.Id == postId);
+            Post post = _context.Posts
+                .Include(n => n.User)
+                .Include(n => n.Likes)
+                .Include(n => n.Favorites)
+                .Include(n => n.Reports)
+                .Include(n => n.Comments).ThenInclude(n => n.User)
+                .FirstOrDefault(p => p.Id == postId);
             return post;
         }
         public Post RemovePost(int postId)
@@ -91,7 +96,7 @@ namespace CircleApp.Services
 
         public async Task<(bool success, bool isFavorite)> TooglePostFavoriteAsync(int postId, int userId)
         {
-            var favorite = _context.Favorites.FirstOrDefault(f => f.UserId == userId && f.PostId == postId);
+            var favorite = await _context.Favorites.FirstOrDefaultAsync(f => f.UserId == userId && f.PostId == postId);
             if (favorite != null)
             {
                 _context.Favorites.Remove(favorite);
@@ -107,7 +112,7 @@ namespace CircleApp.Services
                     CreatedAt = DateTime.UtcNow
                 };
                 await _context.Favorites.AddAsync(newFavorite);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return (true, true);
             }
         }
@@ -169,8 +174,8 @@ namespace CircleApp.Services
         public async Task<int> GetPostFavoriteCount(int postId)
         {
             var post = await _context.Posts.Include(p => p.Favorites).FirstOrDefaultAsync(p => p.Id == postId);
-            var favoriteCount = post?.Favorites?.Count()?? 0;
-           
+            var favoriteCount = post?.Favorites?.Count() ?? 0;
+
             return favoriteCount;
         }
     }

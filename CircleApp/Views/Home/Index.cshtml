@@ -36,8 +36,10 @@
                 {
                     @foreach (var post in Model)
                     {
+                        <div id="post-container-@post.Id">
+                            <partial name="Home/_posts" model="post"></partial>
+                        </div>
                         @* <p>@((DateTime.UtcNow-post.CreatedAt).Humanize())</p> *@
-                        <partial name="Home/_posts" model="post"></partial>
                     }
                 }
 
@@ -135,6 +137,40 @@
 
               })
           })
+          function bindCommentForm()
+          {
+                        document.querySelectorAll('.comment-form').forEach(form=>{
+              form.addEventListener("submit", async (e)=>{
+                  e.preventDefault();
+                  console.log("sandhya");
+                  const postId=form.dataset.postId;
+                  console.log(postId);
+                  var formData=new FormData();
+                  var content=form.querySelector("textarea").value;
+                  formData.append("PostId",postId);
+                  formData.append("content",content);
+                  const response=await fetch(form.action, {
+                      method:"POST",
+                      body: formData,
+                  });
+                  if (response.ok)
+                  {
+                      var html=await response.text();
+                      var container=document.getElementById(`post-container-${postId}`);
+                      container.innerHTML=html;
+                      bindCommentForm();
+
+                  }
+                  else{
+                      console.log("Failed to comment");
+                  }
+
+
+              });
+          });
+          }
+          bindCommentForm();
+
 
 
 
@@ -144,5 +180,6 @@
               document.getElementById('deleteConfirmationPostId').value = postId;
               UIkit.modal('#postDeleteDialog').show();
           }
+
     });
 </script>

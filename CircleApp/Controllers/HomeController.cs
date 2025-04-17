@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using CircleApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using CircleApp.Controllers.Base;
+using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 
 namespace CircleApp.Controllers
 {
@@ -74,15 +75,15 @@ namespace CircleApp.Controllers
             return RedirectToAction("Index");
         }
         [HttpPost]
-        public async Task< IActionResult> TogglePostLike(TogglePostLikeViewModel model)
+        public async Task<IActionResult> TogglePostLike(TogglePostLikeViewModel model)
         {
 
             if (!ModelState.IsValid) return BadRequest();
             int? currentUserId = GetUserId();
             if (currentUserId == null) return RedirectToLogin();
             var result = _postService.TooglePostLike(model.postId, currentUserId.Value);
-            var likeCount = await  _postService.GetPostLikeCount(model.postId);
-            return Json(new { success = result.Success, isLiked=result.isLiked, likeCount=likeCount });
+            var likeCount = await _postService.GetPostLikeCount(model.postId);
+            return Json(new { success = result.Success, isLiked = result.isLiked, likeCount = likeCount });
         }
         [HttpPost]
         public IActionResult TogglePostVisibility(TogglePostVisibilityVM model)
@@ -110,7 +111,9 @@ namespace CircleApp.Controllers
 
             };
             _postService.AddPostComment(comment);
-            return RedirectToAction("Index");
+            var post = _postService.GetPostById(model.PostId);
+            ViewBag.ShowAllComments = false;
+            return PartialView("Home/_Posts", post);
         }
         [HttpPost]
         public IActionResult RemovePostComment(int commentId)
@@ -124,9 +127,18 @@ namespace CircleApp.Controllers
         {
             int? currentUserId = GetUserId();
             if (currentUserId == null) return RedirectToLogin();
-            var result=await _postService.TooglePostFavoriteAsync(model.PostId, currentUserId.Value);
-            var favoriteCount = await  _postService.GetPostFavoriteCount(model.PostId);
-            return Json(new { success = result.success, isFavorite=result.isFavorite, favoriteCount=favoriteCount });
+            try
+            {
+                var result = await _postService.TooglePostFavoriteAsync(model.PostId, currentUserId.Value);
+                var favoriteCount = await _postService.GetPostFavoriteCount(model.PostId);
+                return Json(new { success = result.success, isFavorite = result.isFavorite, favoriteCount = favoriteCount });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error for making favorite");
+                return Json(new { success = false });
+
+            }
         }
 
         public IActionResult AddPostReport(PostReportVM model)
