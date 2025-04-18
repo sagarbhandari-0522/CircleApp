@@ -116,10 +116,10 @@ namespace CircleApp.Controllers
             return PartialView("Home/_Posts", post);
         }
         [HttpPost]
-        public IActionResult RemovePostComment(int commentId)
+        public async Task< IActionResult> RemovePostComment(int commentId)
         {
-            _postService.RemovePostComment(commentId);
-            return RedirectToAction("Index");
+           var result= await _postService.RemovePostCommentAsync(commentId);
+            return Json(new { success = result });
         }
 
         [HttpPost]

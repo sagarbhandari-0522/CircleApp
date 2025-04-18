@@ -11,7 +11,7 @@ namespace CircleApp.Services
         Post RemovePost(int postId);
 
         void AddPostComment(Comment comment);
-        void RemovePostComment(int commentId);
+        Task<bool> RemovePostCommentAsync(int commentId);
         (bool Success, bool isLiked) TooglePostLike(int postId,int userId);
         Task<(bool success, bool isFavorite)> TooglePostFavoriteAsync(int postId, int userId);
         void TogglePostVisibility(int postId, int userId);

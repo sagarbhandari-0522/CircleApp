@@ -71,15 +71,17 @@ namespace CircleApp.Services
             _context.Comments.Add(comment);
             _context.SaveChanges();
         }
-        public void RemovePostComment(int commentId)
+        public async Task<bool> RemovePostCommentAsync(int commentId)
         {
             var comment = _context.Comments.FirstOrDefault(c => c.Id == commentId);
             if (comment != null)
             {
                 _context.Comments.Remove(comment);
-                _context.SaveChanges();
-
+                await _context.SaveChangesAsync();
+                return true;
             }
+            else
+                return false;
         }
 
         public void ReportPost(int postId, int userId)
