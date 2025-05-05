@@ -11,14 +11,13 @@ namespace CircleApp.Services
         Post RemovePost(int postId);
 
         void AddPostComment(Comment comment);
-        void RemovePostComment(int commentId);
-        void TooglePostLike(int postId,int userId);
-        void TooglePostFavorite(int postId, int userId);
+        Task<bool> RemovePostCommentAsync(int commentId);
+        (bool Success, bool isLiked) TooglePostLike(int postId,int userId);
+        Task<(bool success, bool isFavorite)> TooglePostFavoriteAsync(int postId, int userId);
         void TogglePostVisibility(int postId, int userId);
         void ReportPost(int postId, int userId);
-
-
-
+        Task<int> GetPostLikeCount(int postId);
+        Task<int> GetPostFavoriteCount(int postId);
 
     }
 }
